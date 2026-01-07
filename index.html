@@ -1,400 +1,298 @@
-/**
- * JC MECHANICAL - LIVE KPI DASHBOARD WITH DFO TRACKING
- * Google Apps Script Backend
- * 
- * This script:
- * 1. Reads Housecall Pro transaction data from Google Sheets
- * 2. Calculates weekly revenue totals
- * 3. Compares actual vs budget
- * 4. Tracks DFO (Diagnostic Fee Only) percentage
- * 5. Serves data as JSON to the HTML dashboard
- */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JC Mechanical - Live KPI Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto+Condensed:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Roboto Condensed', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #fff;
+            padding: 20px;
+        }
+        .container { max-width: 1800px; margin: 0 auto; }
+        
+        .live-indicator {
+            position: fixed; top: 20px; right: 20px;
+            background: rgba(76, 175, 80, 0.2);
+            border: 2px solid #4CAF50;
+            border-radius: 20px; padding: 10px 20px;
+            display: flex; align-items: center; gap: 10px; z-index: 1000;
+        }
+        .live-dot {
+            width: 10px; height: 10px;
+            background: #4CAF50; border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        .last-update { font-size: 0.85rem; color: #C0C0C0; }
+        
+        .header {
+            background: linear-gradient(135deg, #1F4E78 0%, #FF6B35 100%);
+            padding: 30px; text-align: center; border-radius: 10px;
+            margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        h1 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 3rem; letter-spacing: 3px; margin-bottom: 10px;
+        }
+        .subtitle { font-size: 1.2rem; opacity: 0.9; letter-spacing: 2px; }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px; margin-bottom: 30px;
+        }
+        .stat-card {
+            background: rgba(58,58,58,0.95);
+            padding: 25px; border-radius: 8px;
+            border-left: 5px solid #4472C4;
+            transition: transform 0.3s ease;
+        }
+        .stat-card:hover { transform: translateY(-5px); }
+        .stat-label {
+            font-size: 0.9rem; text-transform: uppercase;
+            letter-spacing: 1.5px; color: #C0C0C0; margin-bottom: 10px;
+        }
+        .stat-value {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2.5rem; color: #FF6B35; letter-spacing: 1px;
+        }
+        .stat-subtext { font-size: 0.85rem; color: #888; margin-top: 5px; }
+        
+        .monthly-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px; margin-bottom: 30px;
+        }
+        .month-card {
+            background: rgba(58,58,58,0.95);
+            padding: 20px; border-radius: 8px;
+            border-left: 4px solid #FF6B35;
+            transition: all 0.3s ease;
+        }
+        .month-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(255,107,53,0.3);
+        }
+        .month-name {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.5rem; letter-spacing: 2px;
+            margin-bottom: 10px; color: #FF6B35;
+        }
+        .month-percent {
+            font-size: 2rem; font-weight: 700;
+            margin-bottom: 5px; color: #FFC107;
+        }
+        .month-amount {
+            font-size: 1.1rem; color: #C0C0C0; font-weight: 700;
+        }
+        .month-actual {
+            font-size: 0.95rem; color: #4CAF50;
+            margin-top: 8px; font-weight: 700;
+        }
+        .month-variance { font-size: 0.85rem; margin-top: 5px; }
+        .positive { color: #4CAF50; }
+        .negative { color: #f44336; }
+        
+        .loading {
+            text-align: center; padding: 50px; font-size: 1.5rem;
+        }
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.1);
+            border-top: 4px solid #FF6B35;
+            border-radius: 50%; width: 50px; height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .section-header {
+            background: linear-gradient(135deg, #1F4E78 0%, #4472C4 100%);
+            padding: 20px 30px; border-radius: 8px; margin: 40px 0 20px 0;
+        }
+        .section-header h2 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem; letter-spacing: 2px;
+        }
+        .error {
+            background: rgba(244, 67, 54, 0.2);
+            border: 2px solid #f44336;
+            padding: 20px; border-radius: 8px;
+            margin: 20px 0; text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="live-indicator">
+        <div class="live-dot"></div>
+        <div>
+            <div style="font-weight: 700; font-size: 0.9rem;">LIVE</div>
+            <div class="last-update" id="lastUpdate">Loading...</div>
+        </div>
+    </div>
 
-// ============================================================================
-// CONFIGURATION
-// ============================================================================
+    <div class="container">
+        <div class="header">
+            <h1>JC MECHANICAL LLC</h1>
+            <div class="subtitle">Live Weekly KPI Dashboard</div>
+        </div>
 
-const CONFIG = {
-  // Your 2026 Annual Budget
-  ANNUAL_BUDGET: 1300000,
-  
-  // Monthly Revenue Distribution Percentages
-  MONTHLY_PERCENTAGES: {
-    'Jan': 7.47,
-    'Feb': 5.84,
-    'Mar': 4.43,
-    'Apr': 9.50,
-    'May': 10.49,
-    'Jun': 16.07,
-    'Jul': 9.21,
-    'Aug': 11.00,
-    'Sep': 9.17,
-    'Oct': 4.96,
-    'Nov': 6.46,
-    'Dec': 5.40
-  },
-  
-  // Sheet names in your Google Sheet
-  SHEETS: {
-    RAW_DATA: 'Housecall Pro Data',
-    BUDGET_TARGETS: 'Budget Targets',
-    WEEKLY_ACTUALS: 'Weekly Actuals',
-    DASHBOARD_FEED: 'Dashboard Data'
-  }
-};
+        <div id="dashboard">
+            <div class="loading">
+                <div class="spinner"></div>
+                <div>Loading dashboard data...</div>
+            </div>
+        </div>
+    </div>
 
-// ============================================================================
-// WEB APP ENDPOINT (for live dashboard)
-// ============================================================================
-
-function doGet(e) {
-  try {
-    const action = (e && e.parameter && e.parameter.action) ? e.parameter.action : 'dashboard';
-    
-    let data;
-    
-    switch(action) {
-      case 'dashboard':
-        data = getDashboardData();
-        break;
-      case 'weekly':
-        data = getWeeklyData();
-        break;
-      case 'monthly':
-        data = getMonthlyData();
-        break;
-      default:
-        data = getDashboardData();
-    }
-    
-    return ContentService
-      .createTextOutput(JSON.stringify(data))
-      .setMimeType(ContentService.MimeType.JSON);
-      
-  } catch (error) {
-    Logger.log('Error in doGet: ' + error.toString());
-    return ContentService
-      .createTextOutput(JSON.stringify({ 
-        error: error.toString(),
-        message: 'Dashboard API Error'
-      }))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-}
-
-// ============================================================================
-// MAIN DASHBOARD DATA GENERATOR
-// ============================================================================
-
-function getDashboardData() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  
-  // Get or create sheets
-  const rawDataSheet = getOrCreateSheet(ss, CONFIG.SHEETS.RAW_DATA);
-  const budgetSheet = getOrCreateSheet(ss, CONFIG.SHEETS.BUDGET_TARGETS);
-  
-  // Calculate budget targets if not already done
-  if (budgetSheet.getLastRow() < 2) {
-    calculateBudgetTargets(budgetSheet);
-  }
-  
-  // Get weekly actuals from raw data
-  const weeklyActuals = calculateWeeklyActuals(rawDataSheet);
-  
-  // Get budget targets
-  const weeklyBudgets = getWeeklyBudgets(budgetSheet);
-  
-  // Calculate service metrics (DFO tracking)
-  const serviceMetrics = calculateServiceMetrics(rawDataSheet);
-  
-  // Compare and generate dashboard data
-  const dashboardData = {
-    timestamp: new Date().toISOString(),
-    annual: {
-      budget: CONFIG.ANNUAL_BUDGET,
-      actualYTD: 0,
-      percentComplete: 0
-    },
-    months: [],
-    weeks: [],
-    summary: {
-      bestWeek: null,
-      worstWeek: null,
-      avgWeekly: 0,
-      onTrack: false
-    },
-    serviceMetrics: serviceMetrics
-  };
-  
-  // Process each month
-  const months = Object.keys(CONFIG.MONTHLY_PERCENTAGES);
-  let totalActual = 0;
-  
-  months.forEach(month => {
-    const monthData = {
-      name: month,
-      percent: CONFIG.MONTHLY_PERCENTAGES[month],
-      budget: CONFIG.ANNUAL_BUDGET * (CONFIG.MONTHLY_PERCENTAGES[month] / 100),
-      actual: 0,
-      variance: 0,
-      variancePercent: 0,
-      weeks: []
-    };
-    
-    // Add weekly data for this month
-    for (let week = 1; week <= 4; week++) {
-      const weekKey = `${month}_W${week}`;
-      const actual = weeklyActuals[weekKey] || 0;
-      const budget = weeklyBudgets[weekKey] || 0;
-      
-      monthData.actual += actual;
-      totalActual += actual;
-      
-      const weekData = {
-        week: week,
-        weekKey: weekKey,
-        actual: actual,
-        budget: budget,
-        variance: actual - budget,
-        variancePercent: budget > 0 ? ((actual / budget) * 100) : 0
-      };
-      
-      monthData.weeks.push(weekData);
-      dashboardData.weeks.push(weekData);
-    }
-    
-    monthData.variance = monthData.actual - monthData.budget;
-    monthData.variancePercent = monthData.budget > 0 ? 
-      ((monthData.actual / monthData.budget) * 100) : 0;
-    
-    dashboardData.months.push(monthData);
-  });
-  
-  // Calculate annual summary
-  dashboardData.annual.actualYTD = totalActual;
-  dashboardData.annual.percentComplete = (totalActual / CONFIG.ANNUAL_BUDGET) * 100;
-  
-  // Find best and worst weeks
-  const weeksWithData = dashboardData.weeks.filter(w => w.actual > 0);
-  if (weeksWithData.length > 0) {
-    dashboardData.summary.bestWeek = weeksWithData.reduce((max, w) => 
-      w.actual > max.actual ? w : max
-    );
-    dashboardData.summary.worstWeek = weeksWithData.reduce((min, w) => 
-      w.actual < min.actual ? w : min
-    );
-    dashboardData.summary.avgWeekly = totalActual / weeksWithData.length;
-  }
-  
-  return dashboardData;
-}
-
-// ============================================================================
-// SERVICE CALL METRICS - DFO TRACKING
-// ============================================================================
-
-function calculateServiceMetrics(sheet) {
-  if (sheet.getLastRow() < 2) {
-    return {
-      totalServiceCalls: 0,
-      diagnosticOnlyCalls: 0,
-      diagnosticPercentage: 0,
-      isGood: true
-    };
-  }
-  
-  const data = sheet.getDataRange().getValues();
-  
-  let totalServiceCalls = 0;
-  let dfoCount = 0;
-  
-  // Skip header row, start at row 1
-  for (let i = 1; i < data.length; i++) {
-    const tags = String(data[i][3]).toLowerCase(); // Column D: Tags
-    
-    // Count all service calls (anything with "service" in the tag)
-    if (tags.includes('service')) {
-      totalServiceCalls++;
-      
-      // Count DFO calls specifically
-      if (tags.includes('dfo')) {
-        dfoCount++;
-      }
-    }
-  }
-  
-  const dfoPercentage = totalServiceCalls > 0 ? 
-    (dfoCount / totalServiceCalls) * 100 : 0;
-  
-  return {
-    totalServiceCalls: totalServiceCalls,
-    diagnosticOnlyCalls: dfoCount,
-    diagnosticPercentage: dfoPercentage,
-    isGood: dfoPercentage < 5 // Green if under 5%
-  };
-}
-
-// ============================================================================
-// BUDGET CALCULATIONS
-// ============================================================================
-
-function calculateBudgetTargets(sheet) {
-  // Clear existing data
-  sheet.clear();
-  
-  // Headers
-  sheet.getRange('A1:E1').setValues([[
-    'Month', 'Percentage', 'Monthly Budget', 'Weekly Budget', 'Week Key'
-  ]]).setFontWeight('bold');
-  
-  let row = 2;
-  
-  Object.keys(CONFIG.MONTHLY_PERCENTAGES).forEach(month => {
-    const percent = CONFIG.MONTHLY_PERCENTAGES[month];
-    const monthlyBudget = CONFIG.ANNUAL_BUDGET * (percent / 100);
-    const weeklyBudget = monthlyBudget / 4;
-    
-    for (let week = 1; week <= 4; week++) {
-      sheet.getRange(row, 1, 1, 5).setValues([[
-        month,
-        percent / 100,
-        monthlyBudget,
-        weeklyBudget,
-        `${month}_W${week}`
-      ]]);
-      
-      row++;
-    }
-  });
-  
-  // Format
-  sheet.getRange(2, 2, row - 2, 1).setNumberFormat('0.00%');
-  sheet.getRange(2, 3, row - 2, 2).setNumberFormat('$#,##0.00');
-  
-  sheet.autoResizeColumns(1, 5);
-}
-
-function getWeeklyBudgets(sheet) {
-  const data = sheet.getDataRange().getValues();
-  const budgets = {};
-  
-  for (let i = 1; i < data.length; i++) {
-    const weekKey = data[i][4]; // Column E: Week Key
-    const weeklyBudget = data[i][3]; // Column D: Weekly Budget
-    budgets[weekKey] = weeklyBudget;
-  }
-  
-  return budgets;
-}
-
-// ============================================================================
-// ACTUAL DATA CALCULATIONS
-// ============================================================================
-
-function calculateWeeklyActuals(sheet) {
-  const weeklyTotals = {};
-  
-  // Check if sheet has data
-  if (sheet.getLastRow() < 2) {
-    return weeklyTotals;
-  }
-  
-  const data = sheet.getDataRange().getValues();
-  
-  // Columns: Date | Description | Amount | Category
-  for (let i = 1; i < data.length; i++) {
-    const date = new Date(data[i][0]);
-    const amount = parseFloat(data[i][2]) || 0;
-    
-    // Skip if not a valid date or amount
-    if (isNaN(date.getTime()) || amount <= 0) continue;
-    
-    // Determine month and week
-    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-                        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const month = monthNames[date.getMonth()];
-    const weekOfMonth = Math.min(Math.ceil(date.getDate() / 7), 4);
-    
-    const weekKey = `${month}_W${weekOfMonth}`;
-    
-    // Initialize if not exists
-    if (!weeklyTotals[weekKey]) {
-      weeklyTotals[weekKey] = 0;
-    }
-    
-    // Add to weekly total
-    weeklyTotals[weekKey] += amount;
-  }
-  
-  return weeklyTotals;
-}
-
-// ============================================================================
-// MONTHLY DATA (for charts)
-// ============================================================================
-
-function getMonthlyData() {
-  const dashboardData = getDashboardData();
-  
-  return {
-    labels: dashboardData.months.map(m => m.name),
-    budgets: dashboardData.months.map(m => m.budget),
-    actuals: dashboardData.months.map(m => m.actual),
-    percentages: dashboardData.months.map(m => m.percent)
-  };
-}
-
-// ============================================================================
-// WEEKLY DATA (for detailed views)
-// ============================================================================
-
-function getWeeklyData() {
-  const dashboardData = getDashboardData();
-  
-  return {
-    weeks: dashboardData.weeks
-  };
-}
-
-// ============================================================================
-// UTILITY FUNCTIONS
-// ============================================================================
-
-function getOrCreateSheet(spreadsheet, sheetName) {
-  let sheet = spreadsheet.getSheetByName(sheetName);
-  if (!sheet) {
-    sheet = spreadsheet.insertSheet(sheetName);
-  }
-  return sheet;
-}
-
-// ============================================================================
-// HOURLY UPDATE TRIGGER (Optional - set up via Triggers menu)
-// ============================================================================
-
-function setupHourlyTrigger() {
-  // Delete existing triggers
-  const triggers = ScriptApp.getProjectTriggers();
-  triggers.forEach(trigger => ScriptApp.deleteTrigger(trigger));
-  
-  // Create new hourly trigger
-  ScriptApp.newTrigger('refreshDashboardData')
-    .timeBased()
-    .everyHours(1)
-    .create();
-}
-
-function refreshDashboardData() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const feedSheet = getOrCreateSheet(ss, CONFIG.SHEETS.DASHBOARD_FEED);
-  
-  // Get latest dashboard data
-  const data = getDashboardData();
-  
-  // Write to sheet as JSON
-  feedSheet.clear();
-  feedSheet.getRange('A1').setValue('Last Updated: ' + new Date().toLocaleString());
-  feedSheet.getRange('A2').setValue(JSON.stringify(data, null, 2));
-  
-  Logger.log('Dashboard data refreshed at ' + new Date());
-}
+    <script>
+        // ====================================================================
+        // CONFIGURATION - YOUR APPS SCRIPT URL
+        // ====================================================================
+        
+        const API_URL = 'https://script.google.com/macros/s/AKfycbwAW5kGhH_SpXagr_lxMYgbjXIsWVBxX-oCNhhegLD7k82JooMg3BLWcYHI_XRLBjxUvg/exec';
+        
+        const REFRESH_INTERVAL = 300000; // 5 minutes
+        
+        // ====================================================================
+        // DASHBOARD LOADER
+        // ====================================================================
+        
+        let dashboardData = null;
+        
+        async function loadDashboard() {
+            try {
+                const response = await fetch(`${API_URL}?action=dashboard`);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch dashboard data');
+                }
+                
+                dashboardData = await response.json();
+                
+                if (dashboardData.error) {
+                    throw new Error(dashboardData.error);
+                }
+                
+                renderDashboard();
+                updateLastUpdateTime();
+                
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+        
+        function renderDashboard() {
+            const container = document.getElementById('dashboard');
+            
+            const html = `
+                <!-- Annual Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Annual Budget</div>
+                        <div class="stat-value">$${formatNumber(dashboardData.annual.budget)}</div>
+                        <div class="stat-subtext">2026 Residential Replacement</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-label">Year-to-Date Actual</div>
+                        <div class="stat-value">$${formatNumber(dashboardData.annual.actualYTD)}</div>
+                        <div class="stat-subtext">${dashboardData.annual.percentComplete.toFixed(1)}% of annual goal</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-label">Best Week</div>
+                        <div class="stat-value">$${dashboardData.summary.bestWeek ? formatNumber(dashboardData.summary.bestWeek.actual) : '0'}</div>
+                        <div class="stat-subtext">${dashboardData.summary.bestWeek ? dashboardData.summary.bestWeek.weekKey : 'N/A'}</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-label">Average Weekly</div>
+                        <div class="stat-value">$${formatNumber(dashboardData.summary.avgWeekly)}</div>
+                        <div class="stat-subtext">Across all weeks with data</div>
+                    </div>
+                    
+                    <div class="stat-card" style="border-left-color: ${dashboardData.serviceMetrics.isGood ? '#4CAF50' : '#f44336'}">
+                        <div class="stat-label">Diagnostic Fee Only Rate</div>
+                        <div class="stat-value" style="color: ${dashboardData.serviceMetrics.isGood ? '#4CAF50' : '#f44336'}">
+                            ${dashboardData.serviceMetrics.diagnosticPercentage.toFixed(1)}%
+                        </div>
+                        <div class="stat-subtext">
+                            ${dashboardData.serviceMetrics.diagnosticOnlyCalls} of ${dashboardData.serviceMetrics.totalServiceCalls} service calls
+                            <br><strong style="color: ${dashboardData.serviceMetrics.isGood ? '#4CAF50' : '#f44336'}">
+                            ${dashboardData.serviceMetrics.isGood ? '✓ GOOD (Under 5%)' : '⚠ NEEDS ATTENTION (Over 5%)'}
+                            </strong>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Monthly Breakdown -->
+                <div class="section-header">
+                    <h2>Monthly Revenue Distribution</h2>
+                </div>
+                
+                <div class="monthly-grid">
+                    ${dashboardData.months.map(month => `
+                        <div class="month-card">
+                            <div class="month-name">${month.name}</div>
+                            <div class="month-percent">${month.percent.toFixed(2)}%</div>
+                            <div class="month-amount">Budget: $${formatNumber(month.budget)}</div>
+                            <div class="month-actual">Actual: $${formatNumber(month.actual)}</div>
+                            <div class="month-variance ${month.variance >= 0 ? 'positive' : 'negative'}">
+                                ${month.variance >= 0 ? '+' : ''}$${formatNumber(month.variance)} 
+                                (${month.variancePercent.toFixed(1)}%)
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            
+            container.innerHTML = html;
+        }
+        
+        function showError(message) {
+            const container = document.getElementById('dashboard');
+            container.innerHTML = `
+                <div class="error">
+                    <h2>⚠️ Error Loading Dashboard</h2>
+                    <p>${message}</p>
+                    <p style="margin-top: 15px; font-size: 0.9rem;">
+                        Make sure you've replaced the API_URL with your Google Apps Script URL.
+                    </p>
+                    <button onclick="loadDashboard()" style="margin-top: 20px; padding: 10px 20px; background: #FF6B35; border: none; border-radius: 5px; color: white; cursor: pointer; font-size: 1rem;">
+                        Retry
+                    </button>
+                </div>
+            `;
+        }
+        
+        function updateLastUpdateTime() {
+            const lastUpdateEl = document.getElementById('lastUpdate');
+            const now = new Date();
+            lastUpdateEl.textContent = now.toLocaleTimeString();
+        }
+        
+        function formatNumber(num) {
+            return Math.round(num).toLocaleString();
+        }
+        
+        // Auto-refresh
+        function startAutoRefresh() {
+            setInterval(() => {
+                console.log('Auto-refreshing dashboard...');
+                loadDashboard();
+            }, REFRESH_INTERVAL);
+        }
+        
+        // Initialize
+        window.addEventListener('DOMContentLoaded', () => {
+            loadDashboard();
+            startAutoRefresh();
+        });
+    </script>
+</body>
+</html>
