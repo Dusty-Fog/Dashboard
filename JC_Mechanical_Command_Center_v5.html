@@ -185,6 +185,14 @@
             color: #7fb3d3;
         }
         
+        .month-indicator {
+            background: rgba(127, 179, 211, 0.2);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            color: #7fb3d3;
+        }
+        
         /* Forecast Grid */
         .forecast-grid {
             display: grid;
@@ -237,6 +245,7 @@
         }
         
         .expense-table tr:hover { background: rgba(127, 179, 211, 0.05); }
+        .expense-table tr.paid-row { background: rgba(0, 255, 136, 0.05); }
         
         .expense-table input, .expense-table select {
             background: rgba(0,0,0,0.2);
@@ -251,6 +260,29 @@
         .expense-table input:focus, .expense-table select:focus {
             outline: none;
             border-color: #7fb3d3;
+        }
+        
+        /* Paid Status Dropdown */
+        .paid-select {
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            min-width: 100px;
+        }
+        
+        .paid-select.unpaid {
+            background: rgba(255, 170, 0, 0.2);
+            color: #ffaa00;
+            border: 1px solid rgba(255, 170, 0, 0.4);
+        }
+        
+        .paid-select.paid {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+            border: 1px solid rgba(0, 255, 136, 0.4);
         }
         
         .delete-btn {
@@ -310,16 +342,54 @@
             margin-top: 15px;
             padding-top: 15px;
             border-top: 2px solid rgba(127, 179, 211, 0.2);
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
             gap: 20px;
         }
         
-        .total-item { text-align: center; }
+        .total-item { text-align: center; padding: 10px; border-radius: 8px; }
         .total-item .label { font-size: 11px; color: #7fb3d3; text-transform: uppercase; margin-bottom: 5px; }
-        .total-item .value { font-size: 20px; font-weight: 700; color: #ff6b6b; }
-        .total-item .value.highlight { color: #ffaa00; }
+        .total-item .value { font-size: 22px; font-weight: 700; }
+        .total-item .value.red { color: #ff6b6b; }
+        .total-item .value.yellow { color: #ffaa00; }
+        .total-item .value.green { color: #00ff88; }
+        
+        .total-item.highlight-unpaid {
+            background: rgba(255, 170, 0, 0.1);
+            border: 1px solid rgba(255, 170, 0, 0.3);
+        }
+        
+        .total-item.highlight-paid {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+        
+        /* Week Totals Row */
+        .week-totals-row {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(127, 179, 211, 0.1);
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+        
+        .week-total-item { text-align: center; }
+        .week-total-item .label { font-size: 10px; color: #888; margin-bottom: 3px; }
+        .week-total-item .value { font-size: 16px; font-weight: 600; color: #ff6b6b; }
+        
+        /* Reset Button */
+        .reset-btn {
+            background: rgba(255, 107, 107, 0.2);
+            border: 1px solid rgba(255, 107, 107, 0.4);
+            color: #ff6b6b;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .reset-btn:hover { background: rgba(255, 107, 107, 0.3); }
         
         /* Alert Banner */
         .alert-banner {
@@ -378,11 +448,14 @@
         @media (max-width: 1200px) {
             .top-kpis { grid-template-columns: repeat(3, 1fr); }
             .pending-kpis { grid-template-columns: repeat(2, 1fr); }
+            .totals-row { grid-template-columns: repeat(2, 1fr); }
         }
         @media (max-width: 768px) {
             .top-kpis { grid-template-columns: repeat(2, 1fr); }
             .pending-kpis { grid-template-columns: repeat(2, 1fr); }
             .forecast-grid { grid-template-columns: repeat(2, 1fr); }
+            .totals-row { grid-template-columns: 1fr 1fr; }
+            .week-totals-row { grid-template-columns: repeat(2, 1fr); }
         }
     </style>
 </head>
@@ -516,8 +589,11 @@
     <!-- Expense Manager -->
     <div class="card">
         <div class="card-header">
-            <span>🔄 All Recurring Expenses</span>
-            <span class="edit-hint" style="opacity: 1;">✏️ Click any field to edit • Changes sync to Google Sheets</span>
+            <span>🔄 Monthly Recurring Expenses</span>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <span class="month-indicator" id="currentMonth">January 2026</span>
+                <button class="reset-btn" onclick="resetAllPaidStatus()">🔄 Reset All to Unpaid</button>
+            </div>
         </div>
         
         <div class="expense-table-container">
@@ -529,6 +605,7 @@
                         <th>Frequency</th>
                         <th>Payment Day</th>
                         <th>Category</th>
+                        <th>Status</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -559,29 +636,41 @@
             <button class="add-btn" onclick="addExpense()">+ Add</button>
         </div>
         
-        <!-- Totals -->
+        <!-- Main Totals -->
         <div class="totals-row">
             <div class="total-item">
                 <div class="label">Monthly Total</div>
-                <div class="value" id="totalMonthly">$0</div>
+                <div class="value red" id="totalMonthly">$0</div>
+            </div>
+            <div class="total-item highlight-unpaid">
+                <div class="label">⚠️ Still Owed</div>
+                <div class="value yellow" id="totalUnpaid">$0</div>
+            </div>
+            <div class="total-item highlight-paid">
+                <div class="label">✅ Paid This Month</div>
+                <div class="value green" id="totalPaid">$0</div>
             </div>
             <div class="total-item">
                 <div class="label">Weekly Average</div>
-                <div class="value highlight" id="weeklyAverage">$0</div>
+                <div class="value red" id="weeklyAverage">$0</div>
             </div>
-            <div class="total-item">
+        </div>
+        
+        <!-- Week Totals -->
+        <div class="week-totals-row">
+            <div class="week-total-item">
                 <div class="label">Week 1 (1st-7th)</div>
                 <div class="value" id="week1Total">$0</div>
             </div>
-            <div class="total-item">
+            <div class="week-total-item">
                 <div class="label">Week 2 (8th-14th)</div>
                 <div class="value" id="week2Total">$0</div>
             </div>
-            <div class="total-item">
+            <div class="week-total-item">
                 <div class="label">Week 3 (15th-21st)</div>
                 <div class="value" id="week3Total">$0</div>
             </div>
-            <div class="total-item">
+            <div class="week-total-item">
                 <div class="label">Week 4 (22nd-31st)</div>
                 <div class="value" id="week4Total">$0</div>
             </div>
@@ -605,6 +694,7 @@
         let expenses = [];
         let saveTimeout = null;
         let kpiSaveTimeout = null;
+        let currentPaidMonth = null; // Track which month the paid statuses are for
         
         // Dashboard data with defaults
         let dashboardData = {
@@ -667,6 +757,57 @@
             return match ? parseInt(match[0]) : 15;
         }
         
+        function getCurrentMonthKey() {
+            const now = new Date();
+            return `${now.getFullYear()}-${now.getMonth() + 1}`;
+        }
+        
+        function getCurrentMonthName() {
+            const now = new Date();
+            return now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+        }
+        
+        // =====================================================
+        // PAID STATUS MANAGEMENT
+        // =====================================================
+        function checkAndResetForNewMonth() {
+            const currentMonth = getCurrentMonthKey();
+            const savedMonth = localStorage.getItem('jcm_paid_month');
+            
+            if (savedMonth !== currentMonth) {
+                // New month! Reset all paid statuses
+                expenses.forEach(exp => {
+                    exp.paidThisMonth = false;
+                });
+                localStorage.setItem('jcm_paid_month', currentMonth);
+                saveExpensesToLocal();
+                showToast('🗓️ New month - expense statuses reset!');
+            }
+        }
+        
+        function togglePaidStatus(index, status) {
+            expenses[index].paidThisMonth = (status === 'paid');
+            renderAll();
+            saveExpensesToLocal();
+            showToast(status === 'paid' ? '✅ Marked as paid' : '⚠️ Marked as unpaid');
+        }
+        
+        function resetAllPaidStatus() {
+            if (confirm('Reset all expenses to UNPAID for this month?')) {
+                expenses.forEach(exp => {
+                    exp.paidThisMonth = false;
+                });
+                renderAll();
+                saveExpensesToLocal();
+                showToast('🔄 All expenses reset to unpaid');
+            }
+        }
+        
+        function saveExpensesToLocal() {
+            localStorage.setItem('jcm_expenses_backup', JSON.stringify(expenses));
+            localStorage.setItem('jcm_paid_month', getCurrentMonthKey());
+        }
+        
         // =====================================================
         // API FUNCTIONS - Using handleGetData
         // =====================================================
@@ -692,10 +833,21 @@
                         });
                     }
                     
-                    // Update expenses
+                    // Update expenses from sheet, but preserve local paid status
                     if (result.expenses && result.expenses.length > 0) {
-                        expenses = result.expenses;
+                        const localPaidStatus = {};
+                        expenses.forEach(exp => {
+                            if (exp.id) localPaidStatus[exp.id] = exp.paidThisMonth;
+                        });
+                        
+                        expenses = result.expenses.map(exp => ({
+                            ...exp,
+                            paidThisMonth: localPaidStatus[exp.id] || false
+                        }));
                     }
+                    
+                    // Check if we need to reset for new month
+                    checkAndResetForNewMonth();
                     
                     renderAll();
                     showToast('✓ Synced from Google Sheets');
@@ -731,7 +883,6 @@
                 showToast('Save failed', true);
             }
             
-            // Also save to local storage as backup
             localStorage.setItem('jcm_kpis_backup', JSON.stringify(dashboardData));
         }
         
@@ -747,6 +898,7 @@
             if (savedExpenses) expenses = JSON.parse(savedExpenses);
             if (savedKPIs) Object.assign(dashboardData, JSON.parse(savedKPIs));
             
+            checkAndResetForNewMonth();
             renderAll();
         }
         
@@ -806,6 +958,24 @@
             }, 0);
         }
         
+        function calculatePaidTotal() {
+            return expenses.reduce((total, exp) => {
+                if (!exp.paidThisMonth) return total;
+                if (exp.frequency === 'Weekly') return total + (exp.amount * 4);
+                if (exp.frequency === 'Bi-weekly') return total + (exp.amount * 2);
+                return total + exp.amount;
+            }, 0);
+        }
+        
+        function calculateUnpaidTotal() {
+            return expenses.reduce((total, exp) => {
+                if (exp.paidThisMonth) return total;
+                if (exp.frequency === 'Weekly') return total + (exp.amount * 4);
+                if (exp.frequency === 'Bi-weekly') return total + (exp.amount * 2);
+                return total + exp.amount;
+            }, 0);
+        }
+        
         function calculateWeekTotal(weekNum) {
             const ranges = { 1: [1, 7], 2: [8, 14], 3: [15, 21], 4: [22, 31] };
             const [start, end] = ranges[weekNum];
@@ -826,6 +996,7 @@
             updateKPIDisplay();
             generateForecast();
             updateAlerts();
+            document.getElementById('currentMonth').textContent = getCurrentMonthName();
             document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
         }
         
@@ -860,10 +1031,23 @@
                 }
             });
             
-            // Totals
+            // Force bank balance to always show manual
+            const bankSource = document.getElementById('bankBalanceSource');
+            if (bankSource) {
+                bankSource.textContent = 'Manual';
+                bankSource.className = 'data-source manual';
+            }
+            
+            // Expense Totals
             const monthlyTotal = calculateMonthlyTotal();
+            const paidTotal = calculatePaidTotal();
+            const unpaidTotal = calculateUnpaidTotal();
+            
             document.getElementById('totalMonthly').textContent = formatCurrency(monthlyTotal);
+            document.getElementById('totalPaid').textContent = formatCurrency(paidTotal);
+            document.getElementById('totalUnpaid').textContent = formatCurrency(unpaidTotal);
             document.getElementById('weeklyAverage').textContent = formatCurrency(monthlyTotal / 4);
+            
             document.getElementById('week1Total').textContent = formatCurrency(calculateWeekTotal(1));
             document.getElementById('week2Total').textContent = formatCurrency(calculateWeekTotal(2));
             document.getElementById('week3Total').textContent = formatCurrency(calculateWeekTotal(3));
@@ -875,7 +1059,9 @@
             tbody.innerHTML = '';
             
             expenses.forEach((exp, index) => {
+                const isPaid = exp.paidThisMonth === true;
                 const row = document.createElement('tr');
+                row.className = isPaid ? 'paid-row' : '';
                 row.innerHTML = `
                     <td><input type="text" value="${exp.name || ''}" onchange="updateExpense(${index}, 'name', this.value)"></td>
                     <td><input type="number" value="${exp.amount || 0}" style="width: 100px;" onchange="updateExpense(${index}, 'amount', parseFloat(this.value))"></td>
@@ -888,6 +1074,12 @@
                     </td>
                     <td><input type="text" value="${exp.day || ''}" style="width: 80px;" onchange="updateExpense(${index}, 'day', this.value)"></td>
                     <td><span class="category-badge">${exp.category || '🔧'}</span></td>
+                    <td>
+                        <select class="paid-select ${isPaid ? 'paid' : 'unpaid'}" onchange="togglePaidStatus(${index}, this.value)">
+                            <option value="unpaid" ${!isPaid ? 'selected' : ''}>☐ Unpaid</option>
+                            <option value="paid" ${isPaid ? 'selected' : ''}>✅ Paid</option>
+                        </select>
+                    </td>
                     <td><button class="delete-btn" onclick="deleteExpense(${index})">🗑️</button></td>
                 `;
                 tbody.appendChild(row);
@@ -953,15 +1145,14 @@
         function updateExpense(index, field, value) {
             expenses[index][field] = value;
             renderAll();
-            // Expenses save would need a separate endpoint - for now just update local storage
-            localStorage.setItem('jcm_expenses_backup', JSON.stringify(expenses));
+            saveExpensesToLocal();
         }
         
         function deleteExpense(index) {
             if (confirm('Delete this expense?')) {
                 expenses.splice(index, 1);
                 renderAll();
-                localStorage.setItem('jcm_expenses_backup', JSON.stringify(expenses));
+                saveExpensesToLocal();
             }
         }
         
@@ -979,7 +1170,9 @@
             
             expenses.push({
                 id: Date.now(),
-                name, amount, frequency, day, category, active: true
+                name, amount, frequency, day, category, 
+                active: true,
+                paidThisMonth: false
             });
             
             document.getElementById('newName').value = '';
@@ -987,7 +1180,7 @@
             document.getElementById('newDay').value = '';
             
             renderAll();
-            localStorage.setItem('jcm_expenses_backup', JSON.stringify(expenses));
+            saveExpensesToLocal();
             showToast('✓ Expense added');
         }
         
@@ -1006,6 +1199,12 @@
         // INITIALIZE
         // =====================================================
         document.addEventListener('DOMContentLoaded', () => {
+            // Load local storage first to get paid statuses
+            const savedExpenses = localStorage.getItem('jcm_expenses_backup');
+            if (savedExpenses) {
+                expenses = JSON.parse(savedExpenses);
+            }
+            
             syncFromSheet();
             setInterval(syncFromSheet, CONFIG.refreshInterval);
         });
