@@ -78,10 +78,18 @@
             50% { opacity: 0.3; }
         }
         
-        /* KPI Cards */
+        /* KPI Cards - Main Row */
         .top-kpis {
             display: grid;
             grid-template-columns: repeat(6, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        /* Pending Revenue Row */
+        .pending-kpis {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
             gap: 15px;
             margin-bottom: 20px;
         }
@@ -97,26 +105,17 @@
         }
         
         .kpi-card.cash { border: 2px solid #00ff88; }
+        .kpi-card.pending { border: 2px solid #ffaa00; background: linear-gradient(135deg, #3d3a1e 0%, #4a4630 100%); }
         .kpi-card .label { font-size: 11px; text-transform: uppercase; color: #7fb3d3; margin-bottom: 8px; letter-spacing: 1px; }
         .kpi-card .value { font-size: 28px; font-weight: 700; color: #ffffff; }
         .kpi-card .value.positive { color: #00ff88; }
         .kpi-card .value.negative { color: #ff6b6b; }
+        .kpi-card .value.warning { color: #ffaa00; }
         .kpi-card .sub { font-size: 11px; color: #888; margin-top: 5px; }
-        
-        /* Editable KPI */
-        .kpi-card .value.editable {
-            cursor: pointer;
-            transition: all 0.2s;
-            border-bottom: 2px dashed transparent;
-        }
-        
-        .kpi-card .value.editable:hover {
-            border-bottom-color: rgba(127, 179, 211, 0.5);
-        }
         
         .kpi-card .edit-hint {
             position: absolute;
-            top: 8px;
+            top: 5px;
             right: 8px;
             font-size: 10px;
             color: #666;
@@ -124,157 +123,168 @@
             transition: opacity 0.2s;
         }
         
-        .kpi-card:hover .edit-hint {
-            opacity: 1;
-        }
+        .kpi-card:hover .edit-hint { opacity: 1; }
+        
+        .kpi-card .value.editable { cursor: pointer; }
+        .kpi-card .value.editable:hover { color: #7fb3d3; }
         
         .kpi-input {
-            background: rgba(0,0,0,0.4);
-            border: 2px solid #7fb3d3;
-            border-radius: 8px;
-            padding: 8px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid #7fb3d3;
+            border-radius: 4px;
             color: #fff;
             font-size: 24px;
             font-weight: 700;
             text-align: center;
             width: 100%;
-            max-width: 150px;
+            padding: 5px;
         }
         
-        .kpi-input:focus {
-            outline: none;
-            border-color: #00ff88;
+        .data-source {
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-top: 5px;
+            display: inline-block;
         }
         
-        /* Panels */
-        .panel {
-            background: linear-gradient(135deg, #1a2744 0%, #1e3a5f 100%);
+        .data-source.manual { background: rgba(255, 170, 0, 0.2); color: #ffaa00; }
+        .data-source.auto { background: rgba(0, 255, 136, 0.2); color: #00ff88; }
+        
+        /* Section Headers */
+        .section-header {
+            color: #7fb3d3;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid rgba(127, 179, 211, 0.2);
+        }
+        
+        /* Cards */
+        .card {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d4a6f 100%);
             border-radius: 12px;
             padding: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            border: 1px solid rgba(127, 179, 211, 0.1);
             margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            border: 1px solid rgba(127, 179, 211, 0.2);
         }
         
-        .panel-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #7fb3d3;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid rgba(127, 179, 211, 0.2);
+        .card-header {
             display: flex;
-            align-items: center;
             justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            color: #7fb3d3;
+            font-weight: 600;
         }
-        
-        .panel-title .edit-hint { font-size: 10px; color: #666; font-weight: normal; }
         
         /* Forecast Grid */
         .forecast-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
+            gap: 15px;
         }
         
-        .forecast-week {
+        .forecast-card {
             background: rgba(0,0,0,0.2);
             border-radius: 8px;
             padding: 15px;
             text-align: center;
         }
         
-        .forecast-week.current { border: 2px solid #7fb3d3; }
-        .forecast-week.danger { border: 2px solid #ff6b6b; background: rgba(255, 107, 107, 0.1); }
-        .forecast-week.good { border: 2px solid #00ff88; }
-        .forecast-week .week-label { font-size: 11px; color: #7fb3d3; margin-bottom: 8px; }
-        .forecast-week .week-dates { font-size: 10px; color: #666; margin-bottom: 10px; }
-        .forecast-week .projected { font-size: 20px; font-weight: 700; }
-        .forecast-week .details { font-size: 10px; color: #888; margin-top: 8px; }
-        .forecast-week .in { color: #00ff88; }
-        .forecast-week .out { color: #ff6b6b; }
+        .forecast-card .week { font-size: 12px; color: #7fb3d3; margin-bottom: 8px; }
+        .forecast-card .dates { font-size: 10px; color: #666; margin-bottom: 10px; }
+        .forecast-card .amount { font-size: 20px; font-weight: 700; }
+        .forecast-card .amount.positive { color: #00ff88; }
+        .forecast-card .amount.negative { color: #ff6b6b; }
+        .forecast-card .detail { font-size: 10px; color: #888; margin-top: 5px; }
         
         /* Expense Table */
-        .expense-table { width: 100%; border-collapse: collapse; }
+        .expense-table-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .expense-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
         .expense-table th {
             text-align: left;
-            padding: 10px 8px;
-            font-size: 10px;
-            text-transform: uppercase;
+            padding: 10px;
+            font-size: 11px;
             color: #7fb3d3;
+            text-transform: uppercase;
             border-bottom: 1px solid rgba(127, 179, 211, 0.2);
-            letter-spacing: 1px;
+            position: sticky;
+            top: 0;
+            background: #1e3a5f;
         }
+        
         .expense-table td {
-            padding: 8px;
+            padding: 10px;
+            font-size: 13px;
             border-bottom: 1px solid rgba(127, 179, 211, 0.1);
-            vertical-align: middle;
         }
-        .expense-table tbody tr:hover { background: rgba(0,0,0,0.2); }
-        .expense-table-container { max-height: 450px; overflow-y: auto; }
         
-        /* Editable Fields */
-        .editable {
+        .expense-table tr:hover { background: rgba(127, 179, 211, 0.05); }
+        
+        .expense-table input, .expense-table select {
             background: rgba(0,0,0,0.2);
-            border: 1px solid transparent;
+            border: 1px solid rgba(127, 179, 211, 0.3);
             border-radius: 4px;
-            padding: 6px 8px;
-            color: #fff;
-            font-size: 12px;
+            color: #e0e0e0;
+            padding: 5px 8px;
+            font-size: 13px;
             width: 100%;
-            transition: all 0.2s;
-        }
-        .editable:hover { border-color: rgba(127, 179, 211, 0.3); }
-        .editable:focus { outline: none; border-color: #7fb3d3; background: rgba(0,0,0,0.4); }
-        .editable.name { min-width: 150px; }
-        .editable.amount { width: 90px; text-align: right; color: #ff6b6b; font-weight: 600; }
-        .editable.date { width: 80px; text-align: center; color: #7fb3d3; }
-        
-        select.editable {
-            cursor: pointer;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%237fb3d3' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 6px center;
-            padding-right: 24px;
         }
         
-        /* Action Buttons */
-        .action-btn {
-            background: none;
+        .expense-table input:focus, .expense-table select:focus {
+            outline: none;
+            border-color: #7fb3d3;
+        }
+        
+        .delete-btn {
+            background: rgba(255, 107, 107, 0.2);
             border: none;
-            cursor: pointer;
-            padding: 4px 8px;
+            color: #ff6b6b;
+            padding: 5px 10px;
             border-radius: 4px;
-            font-size: 14px;
-            transition: all 0.2s;
+            cursor: pointer;
+            font-size: 12px;
         }
-        .action-btn.delete { color: #ff6b6b; }
-        .action-btn.delete:hover { background: rgba(255, 107, 107, 0.2); }
+        
+        .delete-btn:hover { background: rgba(255, 107, 107, 0.4); }
+        
+        .category-badge {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            background: rgba(127, 179, 211, 0.2);
+            color: #7fb3d3;
+        }
         
         /* Add Row */
         .add-row {
             display: flex;
             gap: 10px;
             margin-top: 15px;
-            padding: 15px;
-            background: rgba(0, 255, 136, 0.05);
-            border: 1px dashed rgba(0, 255, 136, 0.3);
-            border-radius: 8px;
-            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid rgba(127, 179, 211, 0.2);
             flex-wrap: wrap;
         }
         
         .add-row input, .add-row select {
-            background: rgba(0,0,0,0.3);
+            background: rgba(0,0,0,0.2);
             border: 1px solid rgba(127, 179, 211, 0.3);
             border-radius: 4px;
-            padding: 8px;
-            color: #fff;
-            font-size: 12px;
+            color: #e0e0e0;
+            padding: 8px 12px;
+            font-size: 13px;
         }
-        .add-row input::placeholder { color: #666; }
-        .add-row input:focus, .add-row select:focus { outline: none; border-color: #00ff88; }
         
         .add-row .add-btn {
             background: rgba(0, 255, 136, 0.2);
@@ -305,15 +315,6 @@
         .total-item .value { font-size: 20px; font-weight: 700; color: #ff6b6b; }
         .total-item .value.highlight { color: #ffaa00; }
         
-        /* Progress Bar */
-        .progress-container { margin-top: 15px; }
-        .progress-label { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px; }
-        .progress-bar { height: 8px; background: rgba(0,0,0,0.3); border-radius: 4px; overflow: hidden; }
-        .progress-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
-        .progress-fill.good { background: linear-gradient(90deg, #00ff88, #00cc6a); }
-        .progress-fill.warning { background: linear-gradient(90deg, #ffaa00, #ff8800); }
-        .progress-fill.danger { background: linear-gradient(90deg, #ff6b6b, #ff4444); }
-        
         /* Alert Banner */
         .alert-banner {
             background: linear-gradient(135deg, #ff6b6b 0%, #ff4444 100%);
@@ -331,33 +332,6 @@
         /* Two Column Grid */
         .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         
-        /* Revenue & Bills */
-        .revenue-row, .bill-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid rgba(127, 179, 211, 0.1);
-        }
-        .revenue-row:last-child, .bill-item:last-child { border-bottom: none; }
-        .dept-name, .bill-name { font-size: 13px; color: #e0e0e0; }
-        .bill-due { font-size: 10px; color: #666; }
-        .actual { font-size: 14px; font-weight: 600; color: #00ff88; }
-        .budget { font-size: 12px; color: #888; }
-        .bill-amount { font-size: 14px; font-weight: 600; color: #ff6b6b; }
-        .variance { font-size: 12px; padding: 2px 8px; border-radius: 4px; }
-        .variance.positive { background: rgba(0, 255, 136, 0.2); color: #00ff88; }
-        .variance.negative { background: rgba(255, 107, 107, 0.2); color: #ff6b6b; }
-        
-        /* A/R Aging */
-        .ar-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-        .ar-bucket { background: rgba(0,0,0,0.2); border-radius: 8px; padding: 12px; text-align: center; }
-        .ar-bucket .bucket-label { font-size: 10px; color: #7fb3d3; margin-bottom: 5px; }
-        .ar-bucket .bucket-amount { font-size: 16px; font-weight: 600; }
-        .ar-bucket.current .bucket-amount { color: #00ff88; }
-        .ar-bucket.late .bucket-amount { color: #ffaa00; }
-        .ar-bucket.overdue .bucket-amount { color: #ff6b6b; }
-        
         /* Toast */
         .toast {
             position: fixed;
@@ -367,23 +341,19 @@
             color: #000;
             padding: 12px 24px;
             border-radius: 8px;
-            font-size: 13px;
             font-weight: 600;
+            transform: translateY(100px);
             opacity: 0;
-            transform: translateY(20px);
             transition: all 0.3s;
             z-index: 1000;
         }
-        .toast.show { opacity: 1; transform: translateY(0); }
-        .toast.error { background: rgba(255, 107, 107, 0.9); color: #fff; }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.error { background: rgba(255, 107, 107, 0.9); }
         
-        /* Loading Overlay */
+        /* Loading */
         .loading-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(13, 27, 42, 0.9);
             display: flex;
             align-items: center;
@@ -401,26 +371,16 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
         
-        /* Data Source Indicator */
-        .data-source {
-            font-size: 9px;
-            padding: 2px 6px;
-            border-radius: 4px;
-            margin-top: 5px;
-            display: inline-block;
-        }
-        .data-source.manual { background: rgba(255, 170, 0, 0.2); color: #ffaa00; }
-        .data-source.auto { background: rgba(0, 255, 136, 0.2); color: #00ff88; }
-        
         /* Responsive */
         @media (max-width: 1200px) {
             .top-kpis { grid-template-columns: repeat(3, 1fr); }
+            .pending-kpis { grid-template-columns: repeat(2, 1fr); }
             .two-col { grid-template-columns: 1fr; }
         }
         @media (max-width: 768px) {
             .top-kpis { grid-template-columns: repeat(2, 1fr); }
+            .pending-kpis { grid-template-columns: repeat(2, 1fr); }
             .forecast-grid { grid-template-columns: repeat(2, 1fr); }
-            .ar-summary { grid-template-columns: repeat(2, 1fr); }
         }
     </style>
 </head>
@@ -449,7 +409,6 @@
             <div class="header-buttons">
                 <button class="header-btn success" onclick="syncFromSheet()">🔄 Refresh</button>
                 <button class="header-btn" onclick="exportData()">📤 Export</button>
-                <button class="header-btn danger" onclick="resetToDefaults()">⚠️ Reset</button>
             </div>
         </div>
     </div>
@@ -460,7 +419,7 @@
         <div class="alert-text" id="alertText"></div>
     </div>
     
-    <!-- Top KPI Cards - NOW EDITABLE -->
+    <!-- Top KPI Cards -->
     <div class="top-kpis">
         <div class="kpi-card cash">
             <span class="edit-hint">✏️ click to edit</span>
@@ -472,60 +431,91 @@
         <div class="kpi-card">
             <span class="edit-hint">✏️ click to edit</span>
             <div class="label">📈 Revenue (MTD)</div>
-            <div class="value positive editable" id="revenueMTD" onclick="editKPI('revenueMTD')">$0</div>
-            <div class="sub" id="revenueBudget">Budget: $0</div>
-            <div class="data-source manual" id="revenueMTDSource">Manual</div>
+            <div class="value positive editable" id="revenueMTD" onclick="editKPI('revenueMTD')" style="font-size: 24px;">$0</div>
+            <div class="sub" style="margin-top: 8px;">
+                <span style="color: #00ff88;">💵 Collected: </span>
+                <span id="paidMTD" style="color: #00ff88; font-weight: 600;">$0</span>
+            </div>
+            <div class="sub" id="revenueBudget">Budget: $84,282</div>
+            <div class="data-source auto" id="revenueMTDSource">HCP</div>
         </div>
         <div class="kpi-card">
             <span class="edit-hint">✏️ click to edit</span>
             <div class="label">💵 Cash In (30d)</div>
-            <div class="value positive editable" id="cashIn" onclick="editKPI('cashIn')">$0</div>
+            <div class="value positive editable" id="cashIn" onclick="editKPI('cashIn30d')">$0</div>
             <div class="sub">Deposits & payments</div>
-            <div class="data-source manual" id="cashInSource">Manual</div>
+            <div class="data-source auto" id="cashIn30dSource">QuickBooks</div>
         </div>
         <div class="kpi-card">
             <span class="edit-hint">✏️ click to edit</span>
             <div class="label">💸 Cash Out (30d)</div>
-            <div class="value negative editable" id="cashOut" onclick="editKPI('cashOut')">$0</div>
+            <div class="value negative editable" id="cashOut" onclick="editKPI('cashOut30d')">$0</div>
             <div class="sub">Bills & expenses</div>
-            <div class="data-source manual" id="cashOutSource">Manual</div>
+            <div class="data-source auto" id="cashOut30dSource">QuickBooks</div>
         </div>
         <div class="kpi-card">
             <span class="edit-hint">✏️ click to edit</span>
-            <div class="label">📄 A/R (Owed to You)</div>
+            <div class="label">📄 A/R (Completed)</div>
             <div class="value editable" id="arTotal" onclick="editKPI('arTotal')">$0</div>
             <div class="sub" id="arCount">0 invoices</div>
-            <div class="data-source manual" id="arTotalSource">Manual</div>
+            <div class="data-source auto" id="arTotalSource">HCP</div>
         </div>
         <div class="kpi-card">
             <span class="edit-hint">✏️ click to edit</span>
             <div class="label">📋 A/P (You Owe)</div>
             <div class="value negative editable" id="apTotal" onclick="editKPI('apTotal')">$0</div>
             <div class="sub" id="apCount">0 bills</div>
-            <div class="data-source manual" id="apTotalSource">Manual</div>
+            <div class="data-source auto" id="apTotalSource">QuickBooks</div>
         </div>
     </div>
     
-    <!-- Cash Flow Forecast -->
-    <div class="panel">
-        <div class="panel-title">🔮 4-Week Cash Flow Forecast</div>
+    <!-- Pending Revenue Section -->
+    <div class="section-header">📊 PENDING REVENUE (Not Yet Completed)</div>
+    <div class="pending-kpis">
+        <div class="kpi-card pending">
+            <span class="edit-hint">✏️ click to edit</span>
+            <div class="label">📋 Unscheduled</div>
+            <div class="value warning editable" id="unscheduledRevenue" onclick="editKPI('unscheduledRevenue')">$0</div>
+            <div class="sub" id="unscheduledCount">0 jobs</div>
+            <div class="data-source auto" id="unscheduledRevenueSource">HCP</div>
+        </div>
+        <div class="kpi-card pending">
+            <span class="edit-hint">✏️ click to edit</span>
+            <div class="label">📅 Scheduled</div>
+            <div class="value warning editable" id="scheduledRevenue" onclick="editKPI('scheduledRevenue')">$0</div>
+            <div class="sub" id="scheduledCount">0 jobs</div>
+            <div class="data-source auto" id="scheduledRevenueSource">HCP</div>
+        </div>
+        <div class="kpi-card pending">
+            <span class="edit-hint">✏️ click to edit</span>
+            <div class="label">🔧 In Progress</div>
+            <div class="value warning editable" id="inProgressRevenue" onclick="editKPI('inProgressRevenue')">$0</div>
+            <div class="sub" id="inProgressCount">0 jobs</div>
+            <div class="data-source auto" id="inProgressRevenueSource">HCP</div>
+        </div>
+        <div class="kpi-card" style="border: 2px solid #00ff88;">
+            <span class="edit-hint">✏️ click to edit</span>
+            <div class="label">💰 Total Pending</div>
+            <div class="value positive editable" id="totalPendingRevenue" onclick="editKPI('totalPendingRevenue')">$0</div>
+            <div class="sub">All pending jobs</div>
+            <div class="data-source auto" id="totalPendingRevenueSource">HCP</div>
+        </div>
+    </div>
+    
+    <!-- 4-Week Forecast -->
+    <div class="card">
+        <div class="card-header">
+            <span>📊 4-Week Cash Flow Forecast</span>
+            <span style="font-size: 12px; color: #888;">Based on current balance + recurring expenses</span>
+        </div>
         <div class="forecast-grid" id="forecastGrid"></div>
-        <div class="progress-container">
-            <div class="progress-label">
-                <span>Weekly Cash Need: <span id="weeklyNeed">$0</span></span>
-                <span id="coverageText">0 weeks covered</span>
-            </div>
-            <div class="progress-bar">
-                <div class="progress-fill good" id="coverageBar" style="width: 0%"></div>
-            </div>
-        </div>
     </div>
     
-    <!-- Editable Expenses -->
-    <div class="panel">
-        <div class="panel-title">
+    <!-- Expense Manager -->
+    <div class="card">
+        <div class="card-header">
             <span>🔄 All Recurring Expenses</span>
-            <span class="edit-hint">✏️ Click any field to edit • Changes sync to Google Sheets</span>
+            <span class="edit-hint" style="opacity: 1;">✏️ Click any field to edit • Changes sync to Google Sheets</span>
         </div>
         
         <div class="expense-table-container">
@@ -596,50 +586,6 @@
         </div>
     </div>
     
-    <!-- Two Column Section -->
-    <div class="two-col">
-        <!-- Revenue -->
-        <div class="panel">
-            <div class="panel-title">📊 Revenue by Department (MTD)</div>
-            <div id="revenueList"></div>
-        </div>
-        
-        <!-- Bills Due -->
-        <div class="panel">
-            <div class="panel-title">📅 Bills Due This Week</div>
-            <div id="billsList"></div>
-            <div class="totals-row" style="justify-content: flex-end;">
-                <div class="total-item">
-                    <div class="label">Total Due This Week</div>
-                    <div class="value" id="weeklyTotal">$0</div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- A/R Aging -->
-    <div class="panel">
-        <div class="panel-title">📄 Accounts Receivable Aging</div>
-        <div class="ar-summary">
-            <div class="ar-bucket current">
-                <div class="bucket-label">Current (0-30)</div>
-                <div class="bucket-amount" id="ar030">$0</div>
-            </div>
-            <div class="ar-bucket late">
-                <div class="bucket-label">31-60 Days</div>
-                <div class="bucket-amount" id="ar3160">$0</div>
-            </div>
-            <div class="ar-bucket late">
-                <div class="bucket-label">61-90 Days</div>
-                <div class="bucket-amount" id="ar6190">$0</div>
-            </div>
-            <div class="ar-bucket overdue">
-                <div class="bucket-label">90+ Days</div>
-                <div class="bucket-amount" id="ar90plus">$0</div>
-            </div>
-        </div>
-    </div>
-    
     <!-- Toast -->
     <div class="toast" id="toast"></div>
     
@@ -649,19 +595,8 @@
         // =====================================================
         const CONFIG = {
             apiUrl: 'https://script.google.com/macros/s/AKfycbwAW5kGhH_SpXagr_lxMYgbjXIsWVBxX-oCNhhegLD7k82JooMg3BLWcYHI_XRLBjxUvg/exec',
-            refreshInterval: 300000,
+            refreshInterval: 300000, // 5 minutes
             debounceDelay: 1000
-        };
-        
-        const CATEGORIES = {
-            loans: '💳 Loans',
-            payroll: '👷 Payroll',
-            credit: '💰 Credit',
-            marketing: '📣 Marketing',
-            software: '💻 Software',
-            utilities: '🔌 Utilities',
-            insurance: '🛡️ Insurance',
-            services: '🔧 Services'
         };
         
         // State
@@ -679,29 +614,30 @@
             apTotal: 0,
             apCount: 0,
             revenueMTD: 0,
+            paidMTD: 0,
             budgetMTD: 84282,
-            ar030: 0,
-            ar3160: 0,
-            ar6190: 0,
-            ar90plus: 0,
+            // Pending Revenue
+            unscheduledRevenue: 0,
+            scheduledRevenue: 0,
+            inProgressRevenue: 0,
+            totalPendingRevenue: 0,
+            unscheduledCount: 0,
+            scheduledCount: 0,
+            inProgressCount: 0,
             // Track data sources
             sources: {
                 bankBalance: 'manual',
-                revenueMTD: 'manual',
-                cashIn: 'manual',
-                cashOut: 'manual',
-                arTotal: 'manual',
-                apTotal: 'manual'
-            },
-            departments: [
-                { name: 'Residential Replacement', actual: 0, budget: 47340 },
-                { name: 'Residential Service', actual: 0, budget: 6240 },
-                { name: 'Residential Maintenance', actual: 0, budget: 15390 },
-                { name: 'Commercial Service', actual: 0, budget: 1039 },
-                { name: 'Commercial Maintenance', actual: 0, budget: 2006 },
-                { name: 'Commercial Replacement', actual: 0, budget: 12000 },
-                { name: 'New Construction', actual: 0, budget: 267 }
-            ]
+                revenueMTD: 'auto',
+                paidMTD: 'auto',
+                cashIn30d: 'auto',
+                cashOut30d: 'auto',
+                arTotal: 'auto',
+                apTotal: 'auto',
+                unscheduledRevenue: 'auto',
+                scheduledRevenue: 'auto',
+                inProgressRevenue: 'auto',
+                totalPendingRevenue: 'auto'
+            }
         };
         
         // =====================================================
@@ -748,32 +684,25 @@
             const el = document.getElementById(field);
             const currentValue = parseCurrency(el.textContent);
             
-            // Replace with input
             const input = document.createElement('input');
             input.type = 'text';
             input.className = 'kpi-input';
             input.value = currentValue;
             
-            // Handle save on blur or enter
             const saveValue = () => {
                 const newValue = parseCurrency(input.value);
                 dashboardData[field] = newValue;
                 dashboardData.sources[field] = 'manual';
                 
-                // Update display
                 el.textContent = formatCurrency(newValue);
                 
-                // Update source indicator
                 const sourceEl = document.getElementById(field + 'Source');
                 if (sourceEl) {
                     sourceEl.textContent = 'Manual';
                     sourceEl.className = 'data-source manual';
                 }
                 
-                // Save to sheet
                 debouncedSaveKPIs();
-                
-                // Recalculate forecast
                 generateForecast();
                 updateAlerts();
             };
@@ -804,10 +733,15 @@
                 const kpis = {
                     bankBalance: dashboardData.bankBalance,
                     revenueMTD: dashboardData.revenueMTD,
+                    paidMTD: dashboardData.paidMTD,
                     cashIn30d: dashboardData.cashIn30d,
                     cashOut30d: dashboardData.cashOut30d,
                     arTotal: dashboardData.arTotal,
                     apTotal: dashboardData.apTotal,
+                    unscheduledRevenue: dashboardData.unscheduledRevenue,
+                    scheduledRevenue: dashboardData.scheduledRevenue,
+                    inProgressRevenue: dashboardData.inProgressRevenue,
+                    totalPendingRevenue: dashboardData.totalPendingRevenue,
                     sources: dashboardData.sources
                 };
                 
@@ -820,7 +754,6 @@
                 setSyncStatus('error');
             }
             
-            // Always backup to local storage
             localStorage.setItem('jcm_kpis_backup', JSON.stringify(dashboardData));
         }
         
@@ -829,38 +762,49 @@
         // =====================================================
         async function apiCall(action, data = {}) {
             const url = new URL(CONFIG.apiUrl);
-            url.searchParams.set('action', action);
+            url.searchParams.append('action', action);
             
-            Object.keys(data).forEach(key => {
-                if (typeof data[key] === 'object') {
-                    url.searchParams.set(key, JSON.stringify(data[key]));
-                } else {
-                    url.searchParams.set(key, data[key]);
-                }
-            });
-            
-            const response = await fetch(url.toString());
-            return response.json();
+            if (Object.keys(data).length === 0) {
+                const response = await fetch(url);
+                return response.json();
+            } else {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    body: JSON.stringify(data)
+                });
+                return response.json();
+            }
         }
         
         async function syncFromSheet() {
             setSyncStatus('syncing');
+            showLoading(true);
+            
             try {
-                // Get expenses
                 const expenseResult = await apiCall('getExpenses');
                 if (Array.isArray(expenseResult)) {
                     expenses = expenseResult;
                 }
                 
-                // Get KPIs
                 const kpiResult = await apiCall('getKPIs');
                 if (kpiResult && !kpiResult.error) {
                     if (kpiResult.bankBalance !== undefined) dashboardData.bankBalance = kpiResult.bankBalance;
                     if (kpiResult.revenueMTD !== undefined) dashboardData.revenueMTD = kpiResult.revenueMTD;
+                    if (kpiResult.paidMTD !== undefined) dashboardData.paidMTD = kpiResult.paidMTD;
                     if (kpiResult.cashIn30d !== undefined) dashboardData.cashIn30d = kpiResult.cashIn30d;
                     if (kpiResult.cashOut30d !== undefined) dashboardData.cashOut30d = kpiResult.cashOut30d;
                     if (kpiResult.arTotal !== undefined) dashboardData.arTotal = kpiResult.arTotal;
                     if (kpiResult.apTotal !== undefined) dashboardData.apTotal = kpiResult.apTotal;
+                    if (kpiResult.arCount !== undefined) dashboardData.arCount = kpiResult.arCount;
+                    if (kpiResult.apCount !== undefined) dashboardData.apCount = kpiResult.apCount;
+                    // Pending Revenue
+                    if (kpiResult.unscheduledRevenue !== undefined) dashboardData.unscheduledRevenue = kpiResult.unscheduledRevenue;
+                    if (kpiResult.scheduledRevenue !== undefined) dashboardData.scheduledRevenue = kpiResult.scheduledRevenue;
+                    if (kpiResult.inProgressRevenue !== undefined) dashboardData.inProgressRevenue = kpiResult.inProgressRevenue;
+                    if (kpiResult.totalPendingRevenue !== undefined) dashboardData.totalPendingRevenue = kpiResult.totalPendingRevenue;
+                    if (kpiResult.unscheduledCount !== undefined) dashboardData.unscheduledCount = kpiResult.unscheduledCount;
+                    if (kpiResult.scheduledCount !== undefined) dashboardData.scheduledCount = kpiResult.scheduledCount;
+                    if (kpiResult.inProgressCount !== undefined) dashboardData.inProgressCount = kpiResult.inProgressCount;
                     if (kpiResult.sources) dashboardData.sources = kpiResult.sources;
                 }
                 
@@ -873,6 +817,8 @@
                 setSyncStatus('error');
                 loadFromLocalStorage();
             }
+            
+            showLoading(false);
         }
         
         async function saveToSheet() {
@@ -934,8 +880,6 @@
             renderExpenseTable();
             updateKPIDisplay();
             generateForecast();
-            renderRevenue();
-            renderBills();
             updateAlerts();
             document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
         }
@@ -943,6 +887,7 @@
         function updateKPIDisplay() {
             document.getElementById('bankBalance').textContent = formatCurrency(dashboardData.bankBalance);
             document.getElementById('revenueMTD').textContent = formatCurrency(dashboardData.revenueMTD);
+            document.getElementById('paidMTD').textContent = formatCurrency(dashboardData.paidMTD || 0);
             document.getElementById('revenueBudget').textContent = 'Budget: ' + formatCurrency(dashboardData.budgetMTD);
             document.getElementById('cashIn').textContent = formatCurrency(dashboardData.cashIn30d);
             document.getElementById('cashOut').textContent = formatCurrency(dashboardData.cashOut30d);
@@ -951,261 +896,173 @@
             document.getElementById('apTotal').textContent = formatCurrency(dashboardData.apTotal);
             document.getElementById('apCount').textContent = dashboardData.apCount + ' bills';
             
-            document.getElementById('ar030').textContent = formatCurrency(dashboardData.ar030);
-            document.getElementById('ar3160').textContent = formatCurrency(dashboardData.ar3160);
-            document.getElementById('ar6190').textContent = formatCurrency(dashboardData.ar6190);
-            document.getElementById('ar90plus').textContent = formatCurrency(dashboardData.ar90plus);
+            // Pending Revenue
+            document.getElementById('unscheduledRevenue').textContent = formatCurrency(dashboardData.unscheduledRevenue);
+            document.getElementById('unscheduledCount').textContent = dashboardData.unscheduledCount + ' jobs';
+            document.getElementById('scheduledRevenue').textContent = formatCurrency(dashboardData.scheduledRevenue);
+            document.getElementById('scheduledCount').textContent = dashboardData.scheduledCount + ' jobs';
+            document.getElementById('inProgressRevenue').textContent = formatCurrency(dashboardData.inProgressRevenue);
+            document.getElementById('inProgressCount').textContent = dashboardData.inProgressCount + ' jobs';
+            document.getElementById('totalPendingRevenue').textContent = formatCurrency(dashboardData.totalPendingRevenue);
             
             // Update source indicators
             Object.keys(dashboardData.sources || {}).forEach(key => {
                 const sourceEl = document.getElementById(key + 'Source');
                 if (sourceEl) {
                     const isAuto = dashboardData.sources[key] === 'auto';
-                    sourceEl.textContent = isAuto ? 'QuickBooks' : 'Manual';
+                    sourceEl.textContent = isAuto ? 'HCP' : 'Manual';
                     sourceEl.className = 'data-source ' + (isAuto ? 'auto' : 'manual');
                 }
             });
-        }
-        
-        function updateAlerts() {
-            const weeklyNeed = calculateMonthlyTotal() / 4;
-            const alert = document.getElementById('alertBanner');
             
-            if (dashboardData.bankBalance < weeklyNeed && dashboardData.bankBalance > 0) {
-                alert.style.display = 'flex';
-                alert.className = 'alert-banner';
-                document.getElementById('alertText').textContent = `⚠️ Cash tight! Balance (${formatCurrency(dashboardData.bankBalance)}) < Weekly need (${formatCurrency(weeklyNeed)})`;
-            } else if (dashboardData.bankBalance > weeklyNeed * 3) {
-                alert.style.display = 'flex';
-                alert.className = 'alert-banner good';
-                document.getElementById('alertText').textContent = `✅ Healthy! ${(dashboardData.bankBalance / weeklyNeed).toFixed(1)} weeks covered`;
-            } else {
-                alert.style.display = 'none';
-            }
-        }
-        
-        function renderExpenseTable() {
-            const tbody = document.getElementById('expenseTableBody');
-            tbody.innerHTML = '';
-            
-            const sorted = [...expenses].sort((a, b) => {
-                const catOrder = Object.keys(CATEGORIES);
-                if (a.category !== b.category) return catOrder.indexOf(a.category) - catOrder.indexOf(b.category);
-                return parseDayNumber(a.day) - parseDayNumber(b.day);
-            });
-            
-            sorted.forEach(exp => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><input type="text" class="editable name" value="${exp.name}" onchange="updateExpense(${exp.id}, 'name', this.value)"></td>
-                    <td><input type="text" class="editable amount" value="${exp.amount}" onchange="updateExpense(${exp.id}, 'amount', this.value)" onclick="this.select()"></td>
-                    <td>
-                        <select class="editable" onchange="updateExpense(${exp.id}, 'frequency', this.value)">
-                            <option value="Weekly" ${exp.frequency === 'Weekly' ? 'selected' : ''}>Weekly</option>
-                            <option value="Bi-weekly" ${exp.frequency === 'Bi-weekly' ? 'selected' : ''}>Bi-weekly</option>
-                            <option value="Monthly" ${exp.frequency === 'Monthly' ? 'selected' : ''}>Monthly</option>
-                        </select>
-                    </td>
-                    <td><input type="text" class="editable date" value="${exp.day}" onchange="updateExpense(${exp.id}, 'day', this.value)"></td>
-                    <td>
-                        <select class="editable" onchange="updateExpense(${exp.id}, 'category', this.value)">
-                            ${Object.entries(CATEGORIES).map(([k, v]) => `<option value="${k}" ${exp.category === k ? 'selected' : ''}>${v}</option>`).join('')}
-                        </select>
-                    </td>
-                    <td><button class="action-btn delete" onclick="deleteExpense(${exp.id})">🗑️</button></td>
-                `;
-                tbody.appendChild(tr);
-            });
-            
-            document.getElementById('totalMonthly').textContent = formatCurrency(calculateMonthlyTotal());
-            document.getElementById('weeklyAverage').textContent = formatCurrency(calculateMonthlyTotal() / 4);
+            // Totals
+            const monthlyTotal = calculateMonthlyTotal();
+            document.getElementById('totalMonthly').textContent = formatCurrency(monthlyTotal);
+            document.getElementById('weeklyAverage').textContent = formatCurrency(monthlyTotal / 4);
             document.getElementById('week1Total').textContent = formatCurrency(calculateWeekTotal(1));
             document.getElementById('week2Total').textContent = formatCurrency(calculateWeekTotal(2));
             document.getElementById('week3Total').textContent = formatCurrency(calculateWeekTotal(3));
             document.getElementById('week4Total').textContent = formatCurrency(calculateWeekTotal(4));
         }
         
-        // =====================================================
-        // CRUD OPERATIONS
-        // =====================================================
-        function updateExpense(id, field, value) {
-            const exp = expenses.find(e => e.id === id);
-            if (exp) {
-                exp[field] = field === 'amount' ? parseCurrency(value) : value;
-                renderExpenseTable();
-                generateForecast();
-                renderBills();
-                debouncedSave();
+        function renderExpenseTable() {
+            const tbody = document.getElementById('expenseTableBody');
+            tbody.innerHTML = '';
+            
+            expenses.forEach((exp, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><input type="text" value="${exp.name}" onchange="updateExpense(${index}, 'name', this.value)"></td>
+                    <td><input type="number" value="${exp.amount}" style="width: 100px;" onchange="updateExpense(${index}, 'amount', parseFloat(this.value))"></td>
+                    <td>
+                        <select onchange="updateExpense(${index}, 'frequency', this.value)">
+                            <option value="Monthly" ${exp.frequency === 'Monthly' ? 'selected' : ''}>Monthly</option>
+                            <option value="Weekly" ${exp.frequency === 'Weekly' ? 'selected' : ''}>Weekly</option>
+                            <option value="Bi-weekly" ${exp.frequency === 'Bi-weekly' ? 'selected' : ''}>Bi-weekly</option>
+                        </select>
+                    </td>
+                    <td><input type="text" value="${exp.day}" style="width: 80px;" onchange="updateExpense(${index}, 'day', this.value)"></td>
+                    <td><span class="category-badge">${exp.category || '🔧'}</span></td>
+                    <td><button class="delete-btn" onclick="deleteExpense(${index})">🗑️</button></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        function generateForecast() {
+            const grid = document.getElementById('forecastGrid');
+            grid.innerHTML = '';
+            
+            const weeklyNeed = calculateMonthlyTotal() / 4;
+            let runningBalance = dashboardData.bankBalance;
+            
+            const today = new Date();
+            
+            for (let week = 1; week <= 4; week++) {
+                const weekStart = new Date(today);
+                weekStart.setDate(today.getDate() + (week - 1) * 7);
+                const weekEnd = new Date(weekStart);
+                weekEnd.setDate(weekStart.getDate() + 6);
+                
+                const weekExpenses = calculateWeekTotal(week);
+                runningBalance = runningBalance - weekExpenses;
+                
+                const isPositive = runningBalance >= 0;
+                const weeksOfCoverage = runningBalance / weeklyNeed;
+                
+                const card = document.createElement('div');
+                card.className = 'forecast-card';
+                card.innerHTML = `
+                    <div class="week">Week ${week}</div>
+                    <div class="dates">${weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
+                    <div class="amount ${isPositive ? 'positive' : 'negative'}">${formatCurrency(runningBalance)}</div>
+                    <div class="detail">After ${formatCurrency(weekExpenses)} expenses</div>
+                    <div class="detail" style="color: ${weeksOfCoverage < 2 ? '#ff6b6b' : '#00ff88'}">${weeksOfCoverage.toFixed(1)} weeks coverage</div>
+                `;
+                grid.appendChild(card);
             }
         }
         
-        function deleteExpense(id) {
+        function updateAlerts() {
+            const banner = document.getElementById('alertBanner');
+            const text = document.getElementById('alertText');
+            const weeklyNeed = calculateMonthlyTotal() / 4;
+            const weeksOfCash = dashboardData.bankBalance / weeklyNeed;
+            
+            if (weeksOfCash < 2) {
+                banner.style.display = 'flex';
+                banner.className = 'alert-banner';
+                text.textContent = `⚠️ CASH ALERT: Only ${weeksOfCash.toFixed(1)} weeks of expenses covered. Need ${formatCurrency(weeklyNeed * 2 - dashboardData.bankBalance)} to reach 2-week minimum.`;
+            } else if (weeksOfCash >= 4) {
+                banner.style.display = 'flex';
+                banner.className = 'alert-banner good';
+                text.textContent = `✅ HEALTHY: ${weeksOfCash.toFixed(1)} weeks of expenses covered. Cash position is strong.`;
+            } else {
+                banner.style.display = 'none';
+            }
+        }
+        
+        // =====================================================
+        // EXPENSE CRUD
+        // =====================================================
+        function updateExpense(index, field, value) {
+            expenses[index][field] = value;
+            renderAll();
+            debouncedSave();
+        }
+        
+        function deleteExpense(index) {
             if (confirm('Delete this expense?')) {
-                expenses = expenses.filter(e => e.id !== id);
-                renderExpenseTable();
-                generateForecast();
-                renderBills();
+                expenses.splice(index, 1);
+                renderAll();
                 debouncedSave();
             }
         }
         
         function addExpense() {
             const name = document.getElementById('newName').value.trim();
-            if (!name) { alert('Enter expense name'); return; }
+            const amount = parseFloat(document.getElementById('newAmount').value) || 0;
+            const frequency = document.getElementById('newFrequency').value;
+            const day = document.getElementById('newDay').value || '15th';
+            const category = document.getElementById('newCategory').value;
             
-            const maxId = Math.max(...expenses.map(e => e.id), 0);
+            if (!name || !amount) {
+                showToast('Please enter name and amount', true);
+                return;
+            }
+            
             expenses.push({
-                id: maxId + 1,
-                name: name,
-                amount: parseFloat(document.getElementById('newAmount').value) || 0,
-                frequency: document.getElementById('newFrequency').value,
-                day: document.getElementById('newDay').value || '1st',
-                category: document.getElementById('newCategory').value
+                id: Date.now(),
+                name, amount, frequency, day, category, active: true
             });
             
             document.getElementById('newName').value = '';
             document.getElementById('newAmount').value = '';
             document.getElementById('newDay').value = '';
             
-            renderExpenseTable();
-            generateForecast();
-            renderBills();
+            renderAll();
             debouncedSave();
-        }
-        
-        async function resetToDefaults() {
-            if (confirm('Reset ALL expenses to defaults? This affects all users.')) {
-                showLoading(true);
-                try {
-                    await apiCall('initExpenses');
-                    await syncFromSheet();
-                    showToast('✓ Reset to defaults');
-                } catch (err) {
-                    showToast('Reset failed', true);
-                }
-                showLoading(false);
-            }
+            showToast('✓ Expense added');
         }
         
         function exportData() {
-            const data = { expenses, kpis: dashboardData };
+            const data = { expenses, dashboardData, exportDate: new Date().toISOString() };
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = 'jcm_data_' + new Date().toISOString().split('T')[0] + '.json';
+            a.href = url;
+            a.download = `jcm_dashboard_backup_${new Date().toISOString().split('T')[0]}.json`;
             a.click();
-        }
-        
-        // =====================================================
-        // FORECAST
-        // =====================================================
-        function generateForecast() {
-            const grid = document.getElementById('forecastGrid');
-            grid.innerHTML = '';
-            
-            let balance = dashboardData.bankBalance;
-            const weeklyRevenue = dashboardData.revenueMTD > 0 ? dashboardData.revenueMTD / 4 : 15000;
-            
-            for (let i = 0; i < 4; i++) {
-                const weekStart = new Date();
-                weekStart.setDate(weekStart.getDate() + (i * 7));
-                const weekEnd = new Date(weekStart);
-                weekEnd.setDate(weekEnd.getDate() + 6);
-                
-                const weekNum = Math.min(Math.ceil(weekStart.getDate() / 7) || 1, 4);
-                const exp = calculateWeekTotal(weekNum);
-                const income = i === 0 ? weeklyRevenue * 0.8 : weeklyRevenue;
-                balance = balance + income - exp;
-                
-                const card = document.createElement('div');
-                card.className = `forecast-week ${i === 0 ? 'current' : ''} ${balance < 0 ? 'danger' : balance > 10000 ? 'good' : ''}`;
-                card.innerHTML = `
-                    <div class="week-label">${i === 0 ? 'This Week' : 'Week ' + (i + 1)}</div>
-                    <div class="week-dates">${weekStart.toLocaleDateString('en-US', {month: 'short', day: 'numeric'})} - ${weekEnd.toLocaleDateString('en-US', {month: 'short', day: 'numeric'})}</div>
-                    <div class="projected" style="color: ${balance >= 0 ? '#00ff88' : '#ff6b6b'}">${formatCurrency(balance)}</div>
-                    <div class="details"><span class="in">+${formatCurrency(income)}</span><br><span class="out">-${formatCurrency(exp)}</span></div>
-                `;
-                grid.appendChild(card);
-            }
-            
-            const weeklyNeed = calculateMonthlyTotal() / 4;
-            document.getElementById('weeklyNeed').textContent = formatCurrency(weeklyNeed);
-            const coverage = dashboardData.bankBalance > 0 ? Math.max(0, Math.min(4, dashboardData.bankBalance / weeklyNeed)) : 0;
-            document.getElementById('coverageBar').style.width = (coverage / 4 * 100) + '%';
-            document.getElementById('coverageBar').className = `progress-fill ${coverage >= 2 ? 'good' : coverage >= 1 ? 'warning' : 'danger'}`;
-            document.getElementById('coverageText').textContent = coverage.toFixed(1) + ' weeks covered';
-        }
-        
-        // =====================================================
-        // BILLS & REVENUE
-        // =====================================================
-        function renderBills() {
-            const list = document.getElementById('billsList');
-            list.innerHTML = '';
-            
-            const today = new Date();
-            const dayOfMonth = today.getDate();
-            const weekStart = dayOfMonth - today.getDay();
-            const weekEnd = weekStart + 6;
-            let total = 0;
-            
-            expenses.forEach(exp => {
-                let due = exp.frequency === 'Weekly' ||
-                    (exp.frequency === 'Bi-weekly' && (Math.ceil(dayOfMonth / 7) === 1 || Math.ceil(dayOfMonth / 7) === 3));
-                
-                if (!due && exp.frequency === 'Monthly') {
-                    const day = parseDayNumber(exp.day);
-                    due = day >= weekStart && day <= weekEnd;
-                }
-                
-                if (due) {
-                    total += exp.amount;
-                    const item = document.createElement('div');
-                    item.className = 'bill-item';
-                    item.innerHTML = `
-                        <div><div class="bill-name">${exp.name}</div><div class="bill-due">${exp.day} • ${exp.frequency}</div></div>
-                        <div class="bill-amount">-${formatCurrency(exp.amount)}</div>
-                    `;
-                    list.appendChild(item);
-                }
-            });
-            
-            document.getElementById('weeklyTotal').textContent = formatCurrency(total);
-        }
-        
-        function renderRevenue() {
-            const list = document.getElementById('revenueList');
-            list.innerHTML = '';
-            
-            dashboardData.departments.forEach(dept => {
-                const variance = dept.actual - dept.budget;
-                const pct = dept.budget > 0 ? ((variance / dept.budget) * 100).toFixed(0) : 0;
-                
-                const row = document.createElement('div');
-                row.className = 'revenue-row';
-                row.innerHTML = `
-                    <div class="dept-name">${dept.name}</div>
-                    <div style="display: flex; gap: 15px; align-items: center;">
-                        <div class="actual">${formatCurrency(dept.actual)}</div>
-                        <div class="budget">/ ${formatCurrency(dept.budget)}</div>
-                        <div class="variance ${variance >= 0 ? 'positive' : 'negative'}">${variance >= 0 ? '+' : ''}${pct}%</div>
-                    </div>
-                `;
-                list.appendChild(row);
-            });
+            showToast('✓ Data exported');
         }
         
         // =====================================================
         // INITIALIZE
         // =====================================================
-        async function init() {
-            showLoading(true);
-            await syncFromSheet();
-            showLoading(false);
+        document.addEventListener('DOMContentLoaded', () => {
+            syncFromSheet();
             setInterval(syncFromSheet, CONFIG.refreshInterval);
-        }
-        
-        document.addEventListener('DOMContentLoaded', init);
+        });
     </script>
 </body>
 </html>
