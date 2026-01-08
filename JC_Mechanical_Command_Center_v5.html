@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JC Mechanical Command Center</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0d1b2a 0%, #1a2744 50%, #1b3a4b 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+        
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 30px;
+            background: linear-gradient(135deg, #1a2744 0%, #2d4a6f 100%);
+            border-radius: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        .logo { width: 70px; height: auto; }
+        .header h1 { font-size: 28px; font-weight: 700; color: #7fb3d3; }
+        .header-right { text-align: right; color: #a0a0a0; }
+        
+        .header-buttons { display: flex; gap: 10px; margin-top: 10px; }
+        
+        .header-btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid rgba(127, 179, 211, 0.3);
+            background: rgba(0,0,0,0.2);
+            color: #7fb3d3;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .header-btn:hover { background: rgba(127, 179, 211, 0.2); }
+        .header-btn.danger { border-color: rgba(255, 107, 107, 0.3); color: #ff6b6b; }
+        .header-btn.danger:hover { background: rgba(255, 107, 107, 0.2); }
+        .header-btn.success { border-color: rgba(0, 255, 136, 0.3); color: #00ff88; }
+        .header-btn.success:hover { background: rgba(0, 255, 136, 0.2); }
+        
+        .sync-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            margin-left: 10px;
+        }
+        
+        .sync-status.synced { background: rgba(0, 255, 136, 0.2); color: #00ff88; }
+        .sync-status.syncing { background: rgba(255, 170, 0, 0.2); color: #ffaa00; }
+        .sync-status.error { background: rgba(255, 107, 107, 0.2); color: #ff6b6b; }
+        
+        .sync-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+        
+        .sync-status.syncing .sync-dot { animation: pulse 1s infinite; }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        /* KPI Cards - Main Row */
+        .top-kpis {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        /* Pending Revenue Row */
+        .pending-kpis {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .kpi-card {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d4a6f 100%);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            border: 1px solid rgba(127, 179, 211, 0.2);
+            position: relative;
+        }
+        
+        .kpi-card.cash { border: 2px solid #00ff88; }
+        .kpi-card.pending { border: 2px solid #ffaa00; background: linear-gradient(135deg, #3d3a1e 0%, #4a4630 100%); }
+        .kpi-card .label { font-size: 11px; text-transform: uppercase; color: #7fb3d3; margin-bottom: 8px; letter-spacing: 1px; }
+        .kpi-card .value { font-size: 28px; font-weight: 700; color: #ffffff; }
+        .kpi-card .value.positive { color: #00ff88; }
+        .kpi-card .value.negative { color: #ff6b6b; }
+        .kpi-card .value.warning { color: #ffaa00; }
+        .kpi-card .sub { font-size: 11px; color: #888; margin-top: 5px; }
+        
+        .kpi-card .edit-hint {
+            position: absolute;
+            top: 5px;
+            right: 8px;
+            font-size: 10px;
+            color: #666;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        .kpi-card:hover .edit-hint { opacity: 1; }
+        
+        .kpi-card .value.editable { cursor: pointer; }
+        .kpi-card .value.editable:hover { color: #7fb3d3; }
+        
+        .kpi-input {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid #7fb3d3;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 24px;
+            font-weight: 700;
+            text-align: center;
+            width: 100%;
+            padding: 5px;
+        }
+        
+        .data-source {
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-top: 5px;
+            display: inline-block;
+        }
+        
+        .data-source.manual { background: rgba(255, 170, 0, 0.2); color: #ffaa00; }
+        .data-source.auto { background: rgba(0, 255, 136, 0.2); color: #00ff88; }
+        
+        /* Section Headers */
+        .section-header {
+            color: #7fb3d3;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid rgba(127, 179, 211, 0.2);
+        }
+        
+        /* Cards */
+        .card {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d4a6f 100%);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            border: 1px solid rgba(127, 179, 211, 0.2);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            color: #7fb3d3;
+            font-weight: 600;
+        }
+        
+        /* Forecast Grid */
+        .forecast-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+        
+        .forecast-card {
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .forecast-card .week { font-size: 12px; color: #7fb3d3; margin-bottom: 8px; }
+        .forecast-card .dates { font-size: 10px; color: #666; margin-bottom: 10px; }
+        .forecast-card .amount { font-size: 20px; font-weight: 700; }
+        .forecast-card .amount.positive { color: #00ff88; }
+        .forecast-card .amount.negative { color: #ff6b6b; }
+        .forecast-card .detail { font-size: 10px; color: #888; margin-top: 5px; }
+        
+        /* Expense Table */
+        .expense-table-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .expense-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .expense-table th {
+            text-align: left;
+            padding: 10px;
+            font-size: 11px;
+            color: #7fb3d3;
+            text-transform: uppercase;
+            border-bottom: 1px solid rgba(127, 179, 211, 0.2);
+            position: sticky;
+            top: 0;
+            background: #1e3a5f;
+        }
+        
+        .expense-table td {
+            padding: 10px;
+            font-size: 13px;
+            border-bottom: 1px solid rgba(127, 179, 211, 0.1);
+        }
+        
+        .expense-table tr:hover { background: rgba(127, 179, 211, 0.05); }
+        
+        .expense-table input, .expense-table select {
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(127, 179, 211, 0.3);
+            border-radius: 4px;
+            color: #e0e0e0;
+            padding: 5px 8px;
+            font-size: 13px;
+            width: 100%;
+        }
+        
+        .expense-table input:focus, .expense-table select:focus {
+            outline: none;
+            border-color: #7fb3d3;
+        }
+        
+        .delete-btn {
+            background: rgba(255, 107, 107, 0.2);
+            border: none;
+            color: #ff6b6b;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .delete-btn:hover { background: rgba(255, 107, 107, 0.4); }
+        
+        .category-badge {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            background: rgba(127, 179, 211, 0.2);
+            color: #7fb3d3;
+        }
+        
+        /* Add Row */
+        .add-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(127, 179, 211, 0.2);
+            flex-wrap: wrap;
+        }
+        
+        .add-row input, .add-row select {
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(127, 179, 211, 0.3);
+            border-radius: 4px;
+            color: #e0e0e0;
+            padding: 8px 12px;
+            font-size: 13px;
+        }
+        
+        .add-row .add-btn {
+            background: rgba(0, 255, 136, 0.2);
+            border: 1px solid rgba(0, 255, 136, 0.5);
+            color: #00ff88;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .add-row .add-btn:hover { background: rgba(0, 255, 136, 0.3); }
+        
+        /* Totals */
+        .totals-row {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid rgba(127, 179, 211, 0.2);
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .total-item { text-align: center; }
+        .total-item .label { font-size: 11px; color: #7fb3d3; text-transform: uppercase; margin-bottom: 5px; }
+        .total-item .value { font-size: 20px; font-weight: 700; color: #ff6b6b; }
+        .total-item .value.highlight { color: #ffaa00; }
+        
+        /* Alert Banner */
+        .alert-banner {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff4444 100%);
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .alert-banner.good { background: linear-gradient(135deg, #00cc6a 0%, #00aa55 100%); }
+        .alert-banner .alert-icon { font-size: 24px; }
+        .alert-banner .alert-text { font-size: 14px; font-weight: 500; }
+        
+        /* Two Column Grid */
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 255, 136, 0.9);
+            color: #000;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.error { background: rgba(255, 107, 107, 0.9); }
+        
+        /* Loading */
+        .loading-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(13, 27, 42, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .loading-overlay.hidden { display: none; }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(127, 179, 211, 0.2);
+            border-top-color: #7fb3d3;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .top-kpis { grid-template-columns: repeat(3, 1fr); }
+            .pending-kpis { grid-template-columns: repeat(2, 1fr); }
+            .two-col { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            .top-kpis { grid-template-columns: repeat(2, 1fr); }
+            .pending-kpis { grid-template-columns: repeat(2, 1fr); }
+            .forecast-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+    </div>
+    
+    <div class="header">
+        <div class="header-left">
+            <img src="https://raw.githubusercontent.com/Dusty-Fog/Dashboard/main/JCM_Blue_Wizard.png" alt="JC Mechanical" class="logo">
+            <div>
+                <h1>JC MECHANICAL COMMAND CENTER</h1>
+                <div style="color: #888; font-size: 12px;">
+                    HCP Revenue + QuickBooks Cash Flow
+                    <span class="sync-status synced" id="syncStatus">
+                        <span class="sync-dot"></span>
+                        <span id="syncText">Synced</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="last-updated">Last Updated: <span id="lastUpdated">Loading...</span></div>
+            <div class="header-buttons">
+                <button class="header-btn success" onclick="syncFromSheet()">🔄 Refresh</button>
+                <button class="header-btn" onclick="exportData()">📤 Export</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Alert Banner -->
+    <div class="alert-banner" id="alertBanner" style="display: none;">
+        <div class="alert-icon">⚠️</div>
+        <div class="alert-text" id="alertText"></div>
+    </div>
+    
+    <!-- Top KPI Cards -->
+    <div class="top-kpis">
+        <div class="kpi-card cash">
+            <span class="edit-hint">✏️ click to edit</span>
+            <div class="label">💰 Bank Balance</div>
+            <div class="value editable" id="bankBalance" onclick="editKPI('bankBalance')">$0</div>
+            <div class="sub">As of today</div>
+            <div class="data-source manual" id="bankBalanceSource">Manual</div>
+        </div>
+        <div class="kpi-card">
+            <span class="edit-hint">✏️ click to edit</span>
+            <div class="label">📈 Revenue (MTD)</div>
+            <div class="value positive editable" id="revenueMTD" onclick="editKPI('revenueMTD')" style="font-size: 24px;">$0</div>
+            <div class="sub" style="margin-top: 8px;">
+                <span style="color: #00ff88;">💵 Collected: </span>
+                <span id="paidMTD" style="color: #00ff88; font-weight: 600;">$0</span>
+            </div>
+            <div class="sub" id="revenueBudget">Budget: $84,282</div>
+            <div class="data-source auto" id="revenueMTDSource">HCP</div>
+        </div>
+        <div class="kpi-card">
+            <span class="edit-hint">✏️ click to edit</span>
+            <div class="label">💵 Cash In (30d)</div>
+            <div class="value positive editable" id="cashIn" onclick="editKPI('cashIn30d')">$0</div>
+            <div class="sub">Deposits & payments</div>
+            <div class="data-source auto" id="cashIn30dSource">QuickBooks</div>
+        </div>
+        <div class="kpi-card">
+            <span class="edit-hint">✏️ click to edit</span>
+            <div class="label">💸 Cash Out (30d)</div>
+            <div class="value negative editable" id="cashOut" onclick="editKPI('cashOut30d')">$0</div>
+            <div class="sub">Bills & expenses</div>
+            <div class="data-source auto" id="cashOut30dSource">QuickBooks</div>
+        </div>
+        <div class="kpi-card">
+            <span class="edit-hint">✏️ click to edit</span>
+            <div class="label">📄 A/R (Completed)</div>
+            <div class="value editable" id="arTotal" onclick="editKPI('arTotal')">$0</div>
+            <div class="sub" id="arCount">0 invoices</div>
+            <div class="data-source auto" id="arTotalSource">HCP</div>
+        </div>
+        <div class="kpi-card">
+            <span class="edit-hint">✏️ click to edit</span>
+            <div class="label">📋 A/P (You Owe)</div>
+            <div class="value negative editable" id="apTotal" onclick="editKPI('apTotal')">$0</div>
+            <div class="sub" id="apCount">0 bills</div>
+            <div class="data-source auto" id="apTotalSource">QuickBooks</div>
+        </div>
+    </div>
+    
+    <!-- Pending Revenue Section -->
+    <div class="section-header">📊 PENDING REVENUE (Not Yet Completed)</div>
+    <div class="pending-kpis">
+        <div class="kpi-card pending">
+            <span class="edit-hint">✏️ click to edit</span>
+            <div class="label">📋 Unscheduled</div>
+            <div class="value warning editable" id="unscheduledRevenue" onclick="editKPI('unscheduledRevenue')">$0</div>
+            <div class="sub" id="unscheduledCount">0 jobs</div>
+            <div class="data-source auto" id="unscheduledRevenueSource">HCP</div>
+        </div>
+        <div class="kpi-card pending">
+            <span class="edit-hint">✏️ click to edit</span>
+            <div class="label">📅 Scheduled</div>
+            <div class="value warning editable" id="scheduledRevenue" onclick="editKPI('scheduledRevenue')">$0</div>
+            <div class="sub" id="scheduledCount">0 jobs</div>
+            <div class="data-source auto" id="scheduledRevenueSource">HCP</div>
+        </div>
+        <div class="kpi-card pending">
+            <span class="edit-hint">✏️ click to edit</span>
+            <div class="label">🔧 In Progress</div>
+            <div class="value warning editable" id="inProgressRevenue" onclick="editKPI('inProgressRevenue')">$0</div>
+            <div class="sub" id="inProgressCount">0 jobs</div>
+            <div class="data-source auto" id="inProgressRevenueSource">HCP</div>
+        </div>
+        <div class="kpi-card" style="border: 2px solid #00ff88;">
+            <span class="edit-hint">✏️ click to edit</span>
+            <div class="label">💰 Total Pending</div>
+            <div class="value positive editable" id="totalPendingRevenue" onclick="editKPI('totalPendingRevenue')">$0</div>
+            <div class="sub">All pending jobs</div>
+            <div class="data-source auto" id="totalPendingRevenueSource">HCP</div>
+        </div>
+    </div>
+    
+    <!-- 4-Week Forecast -->
+    <div class="card">
+        <div class="card-header">
+            <span>📊 4-Week Cash Flow Forecast</span>
+            <span style="font-size: 12px; color: #888;">Based on current balance + recurring expenses</span>
+        </div>
+        <div class="forecast-grid" id="forecastGrid"></div>
+    </div>
+    
+    <!-- Expense Manager -->
+    <div class="card">
+        <div class="card-header">
+            <span>🔄 All Recurring Expenses</span>
+            <span class="edit-hint" style="opacity: 1;">✏️ Click any field to edit • Changes sync to Google Sheets</span>
+        </div>
+        
+        <div class="expense-table-container">
+            <table class="expense-table">
+                <thead>
+                    <tr>
+                        <th>Expense Name</th>
+                        <th>Amount</th>
+                        <th>Frequency</th>
+                        <th>Payment Day</th>
+                        <th>Category</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="expenseTableBody"></tbody>
+            </table>
+        </div>
+        
+        <!-- Add New -->
+        <div class="add-row">
+            <input type="text" id="newName" placeholder="Expense name..." style="flex: 2; min-width: 150px;">
+            <input type="number" id="newAmount" placeholder="Amount" style="width: 100px;">
+            <select id="newFrequency" style="width: 110px;">
+                <option value="Monthly">Monthly</option>
+                <option value="Weekly">Weekly</option>
+                <option value="Bi-weekly">Bi-weekly</option>
+            </select>
+            <input type="text" id="newDay" placeholder="Day (15th)" style="width: 90px;">
+            <select id="newCategory" style="width: 120px;">
+                <option value="loans">💳 Loans</option>
+                <option value="payroll">👷 Payroll</option>
+                <option value="credit">💰 Credit Cards</option>
+                <option value="marketing">📣 Marketing</option>
+                <option value="software">💻 Software</option>
+                <option value="utilities">🔌 Utilities</option>
+                <option value="insurance">🛡️ Insurance</option>
+                <option value="services">🔧 Services</option>
+            </select>
+            <button class="add-btn" onclick="addExpense()">+ Add</button>
+        </div>
+        
+        <!-- Totals -->
+        <div class="totals-row">
+            <div class="total-item">
+                <div class="label">Monthly Total</div>
+                <div class="value" id="totalMonthly">$0</div>
+            </div>
+            <div class="total-item">
+                <div class="label">Weekly Average</div>
+                <div class="value highlight" id="weeklyAverage">$0</div>
+            </div>
+            <div class="total-item">
+                <div class="label">Week 1 (1st-7th)</div>
+                <div class="value" id="week1Total">$0</div>
+            </div>
+            <div class="total-item">
+                <div class="label">Week 2 (8th-14th)</div>
+                <div class="value" id="week2Total">$0</div>
+            </div>
+            <div class="total-item">
+                <div class="label">Week 3 (15th-21st)</div>
+                <div class="value" id="week3Total">$0</div>
+            </div>
+            <div class="total-item">
+                <div class="label">Week 4 (22nd-31st)</div>
+                <div class="value" id="week4Total">$0</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+    
+    <script>
+        // =====================================================
+        // CONFIGURATION
+        // =====================================================
+        const CONFIG = {
+            apiUrl: 'https://script.google.com/macros/s/AKfycbwAW5kGhH_SpXagr_lxMYgbjXIsWVBxX-oCNhhegLD7k82JooMg3BLWcYHI_XRLBjxUvg/exec',
+            refreshInterval: 300000, // 5 minutes
+            debounceDelay: 1000
+        };
+        
+        // State
+        let expenses = [];
+        let saveTimeout = null;
+        let kpiSaveTimeout = null;
+        
+        // Dashboard data with defaults
+        let dashboardData = {
+            bankBalance: 0,
+            cashIn30d: 0,
+            cashOut30d: 0,
+            arTotal: 0,
+            arCount: 0,
+            apTotal: 0,
+            apCount: 0,
+            revenueMTD: 0,
+            paidMTD: 0,
+            budgetMTD: 84282,
+            // Pending Revenue
+            unscheduledRevenue: 0,
+            scheduledRevenue: 0,
+            inProgressRevenue: 0,
+            totalPendingRevenue: 0,
+            unscheduledCount: 0,
+            scheduledCount: 0,
+            inProgressCount: 0,
+            // Track data sources
+            sources: {
+                bankBalance: 'manual',
+                revenueMTD: 'auto',
+                paidMTD: 'auto',
+                cashIn30d: 'auto',
+                cashOut30d: 'auto',
+                arTotal: 'auto',
+                apTotal: 'auto',
+                unscheduledRevenue: 'auto',
+                scheduledRevenue: 'auto',
+                inProgressRevenue: 'auto',
+                totalPendingRevenue: 'auto'
+            }
+        };
+        
+        // =====================================================
+        // UTILITY FUNCTIONS
+        // =====================================================
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency', currency: 'USD',
+                minimumFractionDigits: 0, maximumFractionDigits: 0
+            }).format(amount);
+        }
+        
+        function parseCurrency(str) {
+            return parseFloat(String(str).replace(/[^0-9.-]/g, '')) || 0;
+        }
+        
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast show' + (isError ? ' error' : '');
+            setTimeout(() => toast.className = 'toast', 3000);
+        }
+        
+        function setSyncStatus(status) {
+            const el = document.getElementById('syncStatus');
+            const text = document.getElementById('syncText');
+            el.className = 'sync-status ' + status;
+            text.textContent = status === 'synced' ? 'Synced' : status === 'syncing' ? 'Syncing...' : 'Error';
+        }
+        
+        function showLoading(show) {
+            document.getElementById('loadingOverlay').className = show ? 'loading-overlay' : 'loading-overlay hidden';
+        }
+        
+        function parseDayNumber(day) {
+            const match = String(day).match(/\d+/);
+            return match ? parseInt(match[0]) : 15;
+        }
+        
+        // =====================================================
+        // KPI EDITING
+        // =====================================================
+        function editKPI(field) {
+            const el = document.getElementById(field);
+            const currentValue = parseCurrency(el.textContent);
+            
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'kpi-input';
+            input.value = currentValue;
+            
+            const saveValue = () => {
+                const newValue = parseCurrency(input.value);
+                dashboardData[field] = newValue;
+                dashboardData.sources[field] = 'manual';
+                
+                el.textContent = formatCurrency(newValue);
+                
+                const sourceEl = document.getElementById(field + 'Source');
+                if (sourceEl) {
+                    sourceEl.textContent = 'Manual';
+                    sourceEl.className = 'data-source manual';
+                }
+                
+                debouncedSaveKPIs();
+                generateForecast();
+                updateAlerts();
+            };
+            
+            input.onblur = saveValue;
+            input.onkeydown = (e) => {
+                if (e.key === 'Enter') {
+                    input.blur();
+                } else if (e.key === 'Escape') {
+                    el.textContent = formatCurrency(currentValue);
+                }
+            };
+            
+            el.textContent = '';
+            el.appendChild(input);
+            input.focus();
+            input.select();
+        }
+        
+        function debouncedSaveKPIs() {
+            clearTimeout(kpiSaveTimeout);
+            kpiSaveTimeout = setTimeout(saveKPIsToSheet, CONFIG.debounceDelay);
+        }
+        
+        async function saveKPIsToSheet() {
+            setSyncStatus('syncing');
+            try {
+                const kpis = {
+                    bankBalance: dashboardData.bankBalance,
+                    revenueMTD: dashboardData.revenueMTD,
+                    paidMTD: dashboardData.paidMTD,
+                    cashIn30d: dashboardData.cashIn30d,
+                    cashOut30d: dashboardData.cashOut30d,
+                    arTotal: dashboardData.arTotal,
+                    apTotal: dashboardData.apTotal,
+                    unscheduledRevenue: dashboardData.unscheduledRevenue,
+                    scheduledRevenue: dashboardData.scheduledRevenue,
+                    inProgressRevenue: dashboardData.inProgressRevenue,
+                    totalPendingRevenue: dashboardData.totalPendingRevenue,
+                    sources: dashboardData.sources
+                };
+                
+                await apiCall('saveKPIs', { kpis: kpis });
+                showToast('✓ KPIs saved');
+                setSyncStatus('synced');
+            } catch (err) {
+                console.error('Save KPIs error:', err);
+                showToast('Failed to save KPIs', true);
+                setSyncStatus('error');
+            }
+            
+            localStorage.setItem('jcm_kpis_backup', JSON.stringify(dashboardData));
+        }
+        
+        // =====================================================
+        // API FUNCTIONS
+        // =====================================================
+        async function apiCall(action, data = {}) {
+            const url = new URL(CONFIG.apiUrl);
+            url.searchParams.append('action', action);
+            
+            if (Object.keys(data).length === 0) {
+                const response = await fetch(url);
+                return response.json();
+            } else {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    body: JSON.stringify(data)
+                });
+                return response.json();
+            }
+        }
+        
+        async function syncFromSheet() {
+            setSyncStatus('syncing');
+            showLoading(true);
+            
+            try {
+                const expenseResult = await apiCall('getExpenses');
+                if (Array.isArray(expenseResult)) {
+                    expenses = expenseResult;
+                }
+                
+                const kpiResult = await apiCall('getKPIs');
+                if (kpiResult && !kpiResult.error) {
+                    if (kpiResult.bankBalance !== undefined) dashboardData.bankBalance = kpiResult.bankBalance;
+                    if (kpiResult.revenueMTD !== undefined) dashboardData.revenueMTD = kpiResult.revenueMTD;
+                    if (kpiResult.paidMTD !== undefined) dashboardData.paidMTD = kpiResult.paidMTD;
+                    if (kpiResult.cashIn30d !== undefined) dashboardData.cashIn30d = kpiResult.cashIn30d;
+                    if (kpiResult.cashOut30d !== undefined) dashboardData.cashOut30d = kpiResult.cashOut30d;
+                    if (kpiResult.arTotal !== undefined) dashboardData.arTotal = kpiResult.arTotal;
+                    if (kpiResult.apTotal !== undefined) dashboardData.apTotal = kpiResult.apTotal;
+                    if (kpiResult.arCount !== undefined) dashboardData.arCount = kpiResult.arCount;
+                    if (kpiResult.apCount !== undefined) dashboardData.apCount = kpiResult.apCount;
+                    // Pending Revenue
+                    if (kpiResult.unscheduledRevenue !== undefined) dashboardData.unscheduledRevenue = kpiResult.unscheduledRevenue;
+                    if (kpiResult.scheduledRevenue !== undefined) dashboardData.scheduledRevenue = kpiResult.scheduledRevenue;
+                    if (kpiResult.inProgressRevenue !== undefined) dashboardData.inProgressRevenue = kpiResult.inProgressRevenue;
+                    if (kpiResult.totalPendingRevenue !== undefined) dashboardData.totalPendingRevenue = kpiResult.totalPendingRevenue;
+                    if (kpiResult.unscheduledCount !== undefined) dashboardData.unscheduledCount = kpiResult.unscheduledCount;
+                    if (kpiResult.scheduledCount !== undefined) dashboardData.scheduledCount = kpiResult.scheduledCount;
+                    if (kpiResult.inProgressCount !== undefined) dashboardData.inProgressCount = kpiResult.inProgressCount;
+                    if (kpiResult.sources) dashboardData.sources = kpiResult.sources;
+                }
+                
+                renderAll();
+                showToast('✓ Synced from Google Sheets');
+                setSyncStatus('synced');
+            } catch (err) {
+                console.error('Sync error:', err);
+                showToast('Failed to sync: ' + err.message, true);
+                setSyncStatus('error');
+                loadFromLocalStorage();
+            }
+            
+            showLoading(false);
+        }
+        
+        async function saveToSheet() {
+            setSyncStatus('syncing');
+            try {
+                await apiCall('saveAllExpenses', { expenses: expenses });
+                showToast('✓ Saved to Google Sheets');
+                setSyncStatus('synced');
+            } catch (err) {
+                console.error('Save error:', err);
+                showToast('Failed to save', true);
+                setSyncStatus('error');
+            }
+            localStorage.setItem('jcm_expenses_backup', JSON.stringify(expenses));
+        }
+        
+        function debouncedSave() {
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(saveToSheet, CONFIG.debounceDelay);
+        }
+        
+        function loadFromLocalStorage() {
+            const savedExpenses = localStorage.getItem('jcm_expenses_backup');
+            const savedKPIs = localStorage.getItem('jcm_kpis_backup');
+            
+            if (savedExpenses) expenses = JSON.parse(savedExpenses);
+            if (savedKPIs) Object.assign(dashboardData, JSON.parse(savedKPIs));
+            
+            renderAll();
+        }
+        
+        // =====================================================
+        // CALCULATIONS
+        // =====================================================
+        function calculateMonthlyTotal() {
+            return expenses.reduce((total, exp) => {
+                if (exp.frequency === 'Weekly') return total + (exp.amount * 4);
+                if (exp.frequency === 'Bi-weekly') return total + (exp.amount * 2);
+                return total + exp.amount;
+            }, 0);
+        }
+        
+        function calculateWeekTotal(weekNum) {
+            const ranges = { 1: [1, 7], 2: [8, 14], 3: [15, 21], 4: [22, 31] };
+            const [start, end] = ranges[weekNum];
+            
+            return expenses.reduce((total, exp) => {
+                if (exp.frequency === 'Weekly') return total + exp.amount;
+                if (exp.frequency === 'Bi-weekly') return (weekNum === 1 || weekNum === 3) ? total + exp.amount : total;
+                const day = parseDayNumber(exp.day);
+                return (day >= start && day <= end) ? total + exp.amount : total;
+            }, 0);
+        }
+        
+        // =====================================================
+        // RENDER FUNCTIONS
+        // =====================================================
+        function renderAll() {
+            renderExpenseTable();
+            updateKPIDisplay();
+            generateForecast();
+            updateAlerts();
+            document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
+        }
+        
+        function updateKPIDisplay() {
+            document.getElementById('bankBalance').textContent = formatCurrency(dashboardData.bankBalance);
+            document.getElementById('revenueMTD').textContent = formatCurrency(dashboardData.revenueMTD);
+            document.getElementById('paidMTD').textContent = formatCurrency(dashboardData.paidMTD || 0);
+            document.getElementById('revenueBudget').textContent = 'Budget: ' + formatCurrency(dashboardData.budgetMTD);
+            document.getElementById('cashIn').textContent = formatCurrency(dashboardData.cashIn30d);
+            document.getElementById('cashOut').textContent = formatCurrency(dashboardData.cashOut30d);
+            document.getElementById('arTotal').textContent = formatCurrency(dashboardData.arTotal);
+            document.getElementById('arCount').textContent = dashboardData.arCount + ' invoices';
+            document.getElementById('apTotal').textContent = formatCurrency(dashboardData.apTotal);
+            document.getElementById('apCount').textContent = dashboardData.apCount + ' bills';
+            
+            // Pending Revenue
+            document.getElementById('unscheduledRevenue').textContent = formatCurrency(dashboardData.unscheduledRevenue);
+            document.getElementById('unscheduledCount').textContent = dashboardData.unscheduledCount + ' jobs';
+            document.getElementById('scheduledRevenue').textContent = formatCurrency(dashboardData.scheduledRevenue);
+            document.getElementById('scheduledCount').textContent = dashboardData.scheduledCount + ' jobs';
+            document.getElementById('inProgressRevenue').textContent = formatCurrency(dashboardData.inProgressRevenue);
+            document.getElementById('inProgressCount').textContent = dashboardData.inProgressCount + ' jobs';
+            document.getElementById('totalPendingRevenue').textContent = formatCurrency(dashboardData.totalPendingRevenue);
+            
+            // Update source indicators
+            Object.keys(dashboardData.sources || {}).forEach(key => {
+                const sourceEl = document.getElementById(key + 'Source');
+                if (sourceEl) {
+                    const isAuto = dashboardData.sources[key] === 'auto';
+                    sourceEl.textContent = isAuto ? 'HCP' : 'Manual';
+                    sourceEl.className = 'data-source ' + (isAuto ? 'auto' : 'manual');
+                }
+            });
+            
+            // Totals
+            const monthlyTotal = calculateMonthlyTotal();
+            document.getElementById('totalMonthly').textContent = formatCurrency(monthlyTotal);
+            document.getElementById('weeklyAverage').textContent = formatCurrency(monthlyTotal / 4);
+            document.getElementById('week1Total').textContent = formatCurrency(calculateWeekTotal(1));
+            document.getElementById('week2Total').textContent = formatCurrency(calculateWeekTotal(2));
+            document.getElementById('week3Total').textContent = formatCurrency(calculateWeekTotal(3));
+            document.getElementById('week4Total').textContent = formatCurrency(calculateWeekTotal(4));
+        }
+        
+        function renderExpenseTable() {
+            const tbody = document.getElementById('expenseTableBody');
+            tbody.innerHTML = '';
+            
+            expenses.forEach((exp, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><input type="text" value="${exp.name}" onchange="updateExpense(${index}, 'name', this.value)"></td>
+                    <td><input type="number" value="${exp.amount}" style="width: 100px;" onchange="updateExpense(${index}, 'amount', parseFloat(this.value))"></td>
+                    <td>
+                        <select onchange="updateExpense(${index}, 'frequency', this.value)">
+                            <option value="Monthly" ${exp.frequency === 'Monthly' ? 'selected' : ''}>Monthly</option>
+                            <option value="Weekly" ${exp.frequency === 'Weekly' ? 'selected' : ''}>Weekly</option>
+                            <option value="Bi-weekly" ${exp.frequency === 'Bi-weekly' ? 'selected' : ''}>Bi-weekly</option>
+                        </select>
+                    </td>
+                    <td><input type="text" value="${exp.day}" style="width: 80px;" onchange="updateExpense(${index}, 'day', this.value)"></td>
+                    <td><span class="category-badge">${exp.category || '🔧'}</span></td>
+                    <td><button class="delete-btn" onclick="deleteExpense(${index})">🗑️</button></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        function generateForecast() {
+            const grid = document.getElementById('forecastGrid');
+            grid.innerHTML = '';
+            
+            const weeklyNeed = calculateMonthlyTotal() / 4;
+            let runningBalance = dashboardData.bankBalance;
+            
+            const today = new Date();
+            
+            for (let week = 1; week <= 4; week++) {
+                const weekStart = new Date(today);
+                weekStart.setDate(today.getDate() + (week - 1) * 7);
+                const weekEnd = new Date(weekStart);
+                weekEnd.setDate(weekStart.getDate() + 6);
+                
+                const weekExpenses = calculateWeekTotal(week);
+                runningBalance = runningBalance - weekExpenses;
+                
+                const isPositive = runningBalance >= 0;
+                const weeksOfCoverage = runningBalance / weeklyNeed;
+                
+                const card = document.createElement('div');
+                card.className = 'forecast-card';
+                card.innerHTML = `
+                    <div class="week">Week ${week}</div>
+                    <div class="dates">${weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
+                    <div class="amount ${isPositive ? 'positive' : 'negative'}">${formatCurrency(runningBalance)}</div>
+                    <div class="detail">After ${formatCurrency(weekExpenses)} expenses</div>
+                    <div class="detail" style="color: ${weeksOfCoverage < 2 ? '#ff6b6b' : '#00ff88'}">${weeksOfCoverage.toFixed(1)} weeks coverage</div>
+                `;
+                grid.appendChild(card);
+            }
+        }
+        
+        function updateAlerts() {
+            const banner = document.getElementById('alertBanner');
+            const text = document.getElementById('alertText');
+            const weeklyNeed = calculateMonthlyTotal() / 4;
+            const weeksOfCash = dashboardData.bankBalance / weeklyNeed;
+            
+            if (weeksOfCash < 2) {
+                banner.style.display = 'flex';
+                banner.className = 'alert-banner';
+                text.textContent = `⚠️ CASH ALERT: Only ${weeksOfCash.toFixed(1)} weeks of expenses covered. Need ${formatCurrency(weeklyNeed * 2 - dashboardData.bankBalance)} to reach 2-week minimum.`;
+            } else if (weeksOfCash >= 4) {
+                banner.style.display = 'flex';
+                banner.className = 'alert-banner good';
+                text.textContent = `✅ HEALTHY: ${weeksOfCash.toFixed(1)} weeks of expenses covered. Cash position is strong.`;
+            } else {
+                banner.style.display = 'none';
+            }
+        }
+        
+        // =====================================================
+        // EXPENSE CRUD
+        // =====================================================
+        function updateExpense(index, field, value) {
+            expenses[index][field] = value;
+            renderAll();
+            debouncedSave();
+        }
+        
+        function deleteExpense(index) {
+            if (confirm('Delete this expense?')) {
+                expenses.splice(index, 1);
+                renderAll();
+                debouncedSave();
+            }
+        }
+        
+        function addExpense() {
+            const name = document.getElementById('newName').value.trim();
+            const amount = parseFloat(document.getElementById('newAmount').value) || 0;
+            const frequency = document.getElementById('newFrequency').value;
+            const day = document.getElementById('newDay').value || '15th';
+            const category = document.getElementById('newCategory').value;
+            
+            if (!name || !amount) {
+                showToast('Please enter name and amount', true);
+                return;
+            }
+            
+            expenses.push({
+                id: Date.now(),
+                name, amount, frequency, day, category, active: true
+            });
+            
+            document.getElementById('newName').value = '';
+            document.getElementById('newAmount').value = '';
+            document.getElementById('newDay').value = '';
+            
+            renderAll();
+            debouncedSave();
+            showToast('✓ Expense added');
+        }
+        
+        function exportData() {
+            const data = { expenses, dashboardData, exportDate: new Date().toISOString() };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `jcm_dashboard_backup_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            showToast('✓ Data exported');
+        }
+        
+        // =====================================================
+        // INITIALIZE
+        // =====================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            syncFromSheet();
+            setInterval(syncFromSheet, CONFIG.refreshInterval);
+        });
+    </script>
+</body>
+</html>
