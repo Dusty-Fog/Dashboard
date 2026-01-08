@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JC Mechanical Command Center</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0d1b2a 0%, #1a2744 50%, #1b3a4b 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+        
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 30px;
+            background: linear-gradient(135deg, #1a2744 0%, #2d4a6f 100%);
+            border-radius: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        .logo { width: 70px; height: auto; }
+        .header h1 { font-size: 28px; font-weight: 700; color: #7fb3d3; }
+        .header-right { text-align: right; color: #a0a0a0; }
+        
+        .header-buttons { display: flex; gap: 10px; margin-top: 10px; }
+        
+        .header-btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid rgba(127, 179, 211, 0.3);
+            background: rgba(0,0,0,0.2);
+            color: #7fb3d3;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .header-btn:hover { background: rgba(127, 179, 211, 0.2); }
+        .header-btn.success { border-color: rgba(0, 255, 136, 0.3); color: #00ff88; }
+        .header-btn.success:hover { background: rgba(0, 255, 136, 0.2); }
+        
+        .sync-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            margin-left: 10px;
+        }
+        
+        .sync-status.synced { background: rgba(0, 255, 136, 0.2); color: #00ff88; }
+        .sync-status.syncing { background: rgba(255, 170, 0, 0.2); color: #ffaa00; }
+        
+        .sync-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+        
+        .sync-status.syncing .sync-dot { animation: pulse 1s infinite; }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        /* Section Headers */
+        .section-header {
+            font-size: 14px;
+            font-weight: 600;
+            color: #7fb3d3;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            background: rgba(127, 179, 211, 0.1);
+            border-radius: 8px;
+            border-left: 3px solid #7fb3d3;
+        }
+        
+        /* KPI Cards - Main Row */
+        .top-kpis {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        /* Pending Revenue Row */
+        .pending-kpis {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .kpi-card {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d4a6f 100%);
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+            border: 1px solid rgba(127, 179, 211, 0.2);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(0,0,0,0.3); }
+        .kpi-card.cash { background: linear-gradient(135deg, #1a4a3a 0%, #2d6a5f 100%); border-color: #00ff88; }
+        .kpi-card.pending { border-color: #ffaa00; }
+        
+        .kpi-card .label { font-size: 11px; color: #7fb3d3; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .kpi-card .value { font-size: 28px; font-weight: 700; color: #ffffff; margin-bottom: 5px; }
+        .kpi-card .value.positive { color: #00ff88; }
+        .kpi-card .value.negative { color: #ff6b6b; }
+        .kpi-card .value.warning { color: #ffaa00; }
+        .kpi-card .sub { font-size: 11px; color: #888; }
+        
+        .kpi-card .editable { cursor: pointer; transition: all 0.2s; }
+        .kpi-card .editable:hover { color: #7fb3d3; }
+        
+        .edit-hint {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            font-size: 9px;
+            color: rgba(127, 179, 211, 0.3);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .kpi-card:hover .edit-hint { opacity: 1; }
+        
+        .data-source {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .data-source.auto { background: rgba(0, 255, 136, 0.2); color: #00ff88; }
+        .data-source.manual { background: rgba(255, 170, 0, 0.2); color: #ffaa00; }
+        
+        /* Current Month Section */
+        .month-header {
+            background: linear-gradient(135deg, #e94560 0%, #ff6b6b 100%);
+            border-radius: 12px;
+            padding: 15px 25px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 40px rgba(233, 69, 96, 0.3);
+        }
+        
+        .month-header h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .month-header .days-left {
+            background: rgba(255,255,255,0.2);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+        
+        /* Company Totals Row */
+        .company-totals {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .total-card {
+            background: linear-gradient(145deg, #1e3a5f 0%, #16213e 100%);
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .total-card.highlight {
+            background: linear-gradient(145deg, #2d5a3d 0%, #1e4a2f 100%);
+            border: 1px solid #00ff88;
+        }
+        
+        .total-label {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #7fb3d3;
+            margin-bottom: 4px;
+        }
+        
+        .total-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+        
+        .total-value.positive { color: #00ff88; }
+        .total-value.negative { color: #ff6b6b; }
+        
+        /* Department Section Headers */
+        .dept-section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0 10px 0;
+            padding-bottom: 6px;
+            border-bottom: 2px solid;
+        }
+        
+        .dept-section-header.residential { border-color: #00ff88; color: #00ff88; }
+        .dept-section-header.commercial { border-color: #7fb3d3; color: #7fb3d3; }
+        .dept-section-header.construction { border-color: #ffaa00; color: #ffaa00; }
+        
+        .dept-section-header h3 {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        /* Department Cards Grid */
+        .dept-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+        
+        .dept-grid.single {
+            grid-template-columns: 1fr;
+            max-width: 350px;
+        }
+        
+        .dept-card {
+            background: linear-gradient(145deg, #1e3a5f 0%, #16213e 100%);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        
+        .dept-card-header {
+            padding: 10px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .dept-card.residential .dept-card-header { background: rgba(0, 255, 136, 0.15); }
+        .dept-card.commercial .dept-card-header { background: rgba(127, 179, 211, 0.15); }
+        .dept-card.construction .dept-card-header { background: rgba(255, 170, 0, 0.15); }
+        
+        .dept-name {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .dept-card.residential .dept-name { color: #00ff88; }
+        .dept-card.commercial .dept-name { color: #7fb3d3; }
+        .dept-card.construction .dept-name { color: #ffaa00; }
+        
+        .dept-status {
+            font-size: 0.6rem;
+            padding: 2px 6px;
+            border-radius: 8px;
+            text-transform: uppercase;
+        }
+        
+        .dept-status.on-track { background: rgba(0, 255, 136, 0.2); color: #00ff88; }
+        .dept-status.behind { background: rgba(255, 107, 107, 0.2); color: #ff6b6b; }
+        .dept-status.ahead { background: rgba(0, 255, 136, 0.3); color: #00ff88; }
+        
+        .dept-card-body {
+            padding: 12px;
+        }
+        
+        /* Main Numbers */
+        .main-numbers {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .number-box {
+            text-align: center;
+        }
+        
+        .number-label {
+            font-size: 0.55rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #888;
+            margin-bottom: 2px;
+        }
+        
+        .number-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        .number-value:hover { color: #7fb3d3 !important; }
+        .number-value.budget { color: #7fb3d3; }
+        .number-value.actual { color: #ffffff; }
+        
+        /* Progress Bar */
+        .progress-section {
+            margin-bottom: 12px;
+        }
+        
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.6rem;
+            margin-bottom: 4px;
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+        
+        .progress-fill.excellent { background: linear-gradient(90deg, #00ff88, #00cc6a); }
+        .progress-fill.good { background: linear-gradient(90deg, #7fb3d3, #5a9fc4); }
+        .progress-fill.warning { background: linear-gradient(90deg, #ffaa00, #ff8800); }
+        .progress-fill.danger { background: linear-gradient(90deg, #ff6b6b, #e94560); }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-label {
+            font-size: 0.5rem;
+            text-transform: uppercase;
+            color: #666;
+            margin-bottom: 1px;
+        }
+        
+        .stat-value {
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .stat-value.positive { color: #00ff88; }
+        .stat-value.negative { color: #ff6b6b; }
+        
+        /* Card */
+        .card {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d4a6f 100%);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(127, 179, 211, 0.2);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(127, 179, 211, 0.2);
+            font-size: 16px;
+            font-weight: 600;
+            color: #7fb3d3;
+        }
+        
+        /* Forecast Grid */
+        .forecast-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+        
+        .forecast-card {
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid rgba(127, 179, 211, 0.1);
+        }
+        
+        .forecast-card .week { font-size: 12px; color: #7fb3d3; font-weight: 600; margin-bottom: 5px; }
+        .forecast-card .dates { font-size: 10px; color: #888; margin-bottom: 10px; }
+        .forecast-card .amount { font-size: 22px; font-weight: 700; }
+        .forecast-card .amount.positive { color: #00ff88; }
+        .forecast-card .amount.negative { color: #ff6b6b; }
+        .forecast-card .detail { font-size: 10px; color: #888; margin-top: 5px; }
+        
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 255, 136, 0.9);
+            color: #000;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.error { background: rgba(255, 107, 107, 0.9); }
+        
+        /* Loading */
+        .loading-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(13, 27, 42, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .loading-overlay.hidden { display: none; }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(127, 179, 211, 0.2);
+            border-top-color: #7fb3d3;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* Responsive */
+        @media (max-width: 1400px) {
+            .company-totals { grid-template-columns: repeat(4, 1fr); }
+        }
+        @media (max-width: 1200px) {
+            .top-kpis { grid-template-columns: repeat(3, 1fr); }
+            .pending-kpis { grid-template-columns: repeat(2, 1fr); }
+            .dept-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .top-kpis { grid-template-columns: repeat(2, 1fr); }
+            .pending-kpis { grid-template-columns: repeat(2, 1fr); }
+            .forecast-grid { grid-template-columns: repeat(2, 1fr); }
+            .company-totals { grid-template-columns: repeat(2, 1fr); }
+            .dept-grid { grid-template-columns: 1fr; }
+            .month-header { flex-direction: column; gap: 10px; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+    </div>
+    
+    <div class="header">
+        <div class="header-left">
+            <img src="https://raw.githubusercontent.com/Dusty-Fog/Dashboard/main/JCM_Blue_Wizard.png" alt="JC Mechanical" class="logo">
+            <div>
+                <h1>JC MECHANICAL COMMAND CENTER</h1>
+                <div style="color: #888; font-size: 12px;">
+                    Executive Dashboard
+                    <span class="sync-status synced" id="syncStatus">
+                        <span class="sync-dot"></span>
+                        <span id="syncText">Synced</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="last-updated">Last Updated: <span id="lastUpdated">Loading...</span></div>
+            <div class="header-buttons">
+                <button class="header-btn success" onclick="syncFromSheet()">🔄 Refresh</button>
+                <button class="header-btn" onclick="exportData()">📤 Export</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Top KPI Cards -->
+    <div class="top-kpis">
+        <div class="kpi-card cash">
+            <span class="edit-hint">✏️ click to edit</span>
+            <div class="label">💰 Bank Balance</div>
+            <div class="value editable" id="bankBalance" onclick="editKPI('bankBalance')">$0</div>
+            <div class="sub">As of today</div>
+            <div class="data-source manual" id="bankBalanceSource">Manual</div>
+        </div>
+        <div class="kpi-card">
+            <span class="edit-hint">✏️ click to edit</span>
+            <div class="label">📈 Revenue (MTD)</div>
+            <div class="value positive editable" id="revenueMTD" onclick="editKPI('revenueMTD')" style="font-size: 24px;">$0</div>
+            <div class="sub" style="margin-top: 8px;">
+                <span style="color: #00ff88;">💵 Collected: </span>
+                <span id="paidMTD" style="color: #00ff88; font-weight: 600;">$0</span>
+            </div>
+            <div class="sub" id="revenueBudget">Budget: $145,606</div>
+            <div class="data-source auto" id="revenueMTDSource">HCP</div>
+        </div>
+        <div class="kpi-card">
+            <span class="edit-hint">✏️ click to edit</span>
+            <div class="label">💵 Cash In (30d)</div>
+            <div class="value positive editable" id="cashIn" onclick="editKPI('cashIn30d')">$0</div>
+            <div class="sub">Deposits & payments</div>
+            <div class="data-source auto" id="cashIn30dSource">QuickBooks</div>
+        </div>
+        <div class="kpi-card">
+            <span class="edit-hint">✏️ click to edit</span>
+            <div class="label">💸 Cash Out (30d)</div>
+            <div class="value negative editable" id="cashOut" onclick="editKPI('cashOut30d')">$0</div>
+            <div class="sub">Bills & expenses</div>
+            <div class="data-source auto" id="cashOut30dSource">QuickBooks</div>
+        </div>
+        <div class="kpi-card">
+            <span class="edit-hint">✏️ click to edit</span>
+            <div class="label">📄 A/R (Completed)</div>
+            <div class="value editable" id="arTotal" onclick="editKPI('arTotal')">$0</div>
+            <div class="sub" id="arCount">0 invoices</div>
+            <div class="data-source auto" id="arTotalSource">HCP</div>
+        </div>
+        <div class="kpi-card">
+            <span class="edit-hint">✏️ click to edit</span>
+            <div class="label">📋 A/P (You Owe)</div>
+            <div class="value negative editable" id="apTotal" onclick="editKPI('apTotal')">$0</div>
+            <div class="sub" id="apCount">0 bills</div>
+            <div class="data-source auto" id="apTotalSource">QuickBooks</div>
+        </div>
+    </div>
+    
+    <!-- Pending Revenue Section -->
+    <div class="section-header">📊 PENDING REVENUE (Not Yet Completed)</div>
+    <div class="pending-kpis">
+        <div class="kpi-card pending">
+            <span class="edit-hint">✏️ click to edit</span>
+            <div class="label">📋 Unscheduled</div>
+            <div class="value warning editable" id="unscheduledRevenue" onclick="editKPI('unscheduledRevenue')">$0</div>
+            <div class="sub" id="unscheduledCount">0 jobs</div>
+            <div class="data-source auto" id="unscheduledRevenueSource">HCP</div>
+        </div>
+        <div class="kpi-card pending">
+            <span class="edit-hint">✏️ click to edit</span>
+            <div class="label">📅 Scheduled</div>
+            <div class="value warning editable" id="scheduledRevenue" onclick="editKPI('scheduledRevenue')">$0</div>
+            <div class="sub" id="scheduledCount">0 jobs</div>
+            <div class="data-source auto" id="scheduledRevenueSource">HCP</div>
+        </div>
+        <div class="kpi-card pending">
+            <span class="edit-hint">✏️ click to edit</span>
+            <div class="label">🔧 In Progress</div>
+            <div class="value warning editable" id="inProgressRevenue" onclick="editKPI('inProgressRevenue')">$0</div>
+            <div class="sub" id="inProgressCount">0 jobs</div>
+            <div class="data-source auto" id="inProgressRevenueSource">HCP</div>
+        </div>
+        <div class="kpi-card" style="border: 2px solid #00ff88;">
+            <span class="edit-hint">✏️ click to edit</span>
+            <div class="label">💰 Total Pending</div>
+            <div class="value positive editable" id="totalPendingRevenue" onclick="editKPI('totalPendingRevenue')">$0</div>
+            <div class="sub">All pending jobs</div>
+            <div class="data-source auto" id="totalPendingRevenueSource">HCP</div>
+        </div>
+    </div>
+    
+    <!-- CURRENT MONTH DEPARTMENT SECTION -->
+    <div class="month-header">
+        <h2 id="monthTitle">January 2026</h2>
+        <div class="days-left" id="daysLeft">24 days remaining</div>
+    </div>
+    
+    <!-- Company Totals -->
+    <div class="company-totals">
+        <div class="total-card">
+            <div class="total-label">Budget</div>
+            <div class="total-value" id="compBudget">$145,606</div>
+        </div>
+        <div class="total-card">
+            <div class="total-label">Actual</div>
+            <div class="total-value" id="compActual">$0</div>
+        </div>
+        <div class="total-card">
+            <div class="total-label">Variance</div>
+            <div class="total-value negative" id="compVariance">$0</div>
+        </div>
+        <div class="total-card">
+            <div class="total-label">% Complete</div>
+            <div class="total-value" id="compPercent">0%</div>
+        </div>
+        <div class="total-card">
+            <div class="total-label">Jobs</div>
+            <div class="total-value" id="compJobs">0</div>
+        </div>
+        <div class="total-card">
+            <div class="total-label">Avg Ticket</div>
+            <div class="total-value" id="compAvgTicket">$0</div>
+        </div>
+        <div class="total-card highlight">
+            <div class="total-label">Gross Profit</div>
+            <div class="total-value positive" id="compGrossProfit">$0</div>
+        </div>
+    </div>
+    
+    <!-- RESIDENTIAL SECTION -->
+    <div class="dept-section-header residential">
+        <span>🏠</span>
+        <h3>Residential</h3>
+    </div>
+    
+    <div class="dept-grid" id="residentialGrid"></div>
+    
+    <!-- COMMERCIAL SECTION -->
+    <div class="dept-section-header commercial">
+        <span>🏢</span>
+        <h3>Commercial</h3>
+    </div>
+    
+    <div class="dept-grid" id="commercialGrid"></div>
+    
+    <!-- NEW CONSTRUCTION SECTION -->
+    <div class="dept-section-header construction">
+        <span>🏗️</span>
+        <h3>New Construction</h3>
+    </div>
+    
+    <div class="dept-grid single" id="constructionGrid"></div>
+    
+    <!-- 4-Week Forecast -->
+    <div class="card" style="margin-top: 20px;">
+        <div class="card-header">
+            <span>📊 4-Week Cash Flow Forecast</span>
+            <span style="font-size: 12px; color: #888;">Based on current balance + recurring expenses</span>
+        </div>
+        <div class="forecast-grid" id="forecastGrid"></div>
+    </div>
+    
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+    
+    <script>
+        // =====================================================
+        // CONFIGURATION
+        // =====================================================
+        const CONFIG = {
+            sheetId: '1jtpJbvkcsZ4SjVMsL4VZbYQeiXuyw1E7SwcR2ITZmVE',
+            appsScriptUrl: 'https://script.google.com/macros/s/AKfycbwAW5kGhH_SpXagr_lxMYgbjXIsWVBxX-oCNhhegLD7k82JooMg3BLWcYHI_XRLBjxUvg/exec',
+            refreshInterval: 60000
+        };
+        
+        const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 
+                            'July', 'August', 'September', 'October', 'November', 'December'];
+        
+        // =====================================================
+        // DATA
+        // =====================================================
+        let dashboardData = {
+            bankBalance: 0,
+            revenueMTD: 0,
+            paidMTD: 0,
+            cashIn30d: 0,
+            cashOut30d: 0,
+            arTotal: 0,
+            arCount: 0,
+            apTotal: 0,
+            apCount: 0,
+            unscheduledRevenue: 0,
+            unscheduledCount: 0,
+            scheduledRevenue: 0,
+            scheduledCount: 0,
+            inProgressRevenue: 0,
+            inProgressCount: 0,
+            totalPendingRevenue: 0,
+            sources: {}
+        };
+        
+        let departments = {
+            'res-replacement': { name: 'Replacement', budget: 97110, actual: 0, jobs: 0, grossProfit: 0 },
+            'res-service': { name: 'Service', budget: 29400, actual: 0, jobs: 0, grossProfit: 0 },
+            'res-maintenance': { name: 'Maintenance', budget: 2840, actual: 0, jobs: 0, grossProfit: 0 },
+            'com-replacement': { name: 'Replacement', budget: 6656, actual: 0, jobs: 0, grossProfit: 0 },
+            'com-service': { name: 'Service', budget: 8830, actual: 0, jobs: 0, grossProfit: 0 },
+            'com-maintenance': { name: 'Maintenance', budget: 770, actual: 0, jobs: 0, grossProfit: 0 },
+            'new-construction': { name: 'New Construction', budget: 0, actual: 0, jobs: 0, grossProfit: 0 }
+        };
+        
+        let expenses = [];
+        
+        // =====================================================
+        // UTILITIES
+        // =====================================================
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount || 0);
+        }
+        
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast show' + (isError ? ' error' : '');
+            setTimeout(() => toast.className = 'toast', 3000);
+        }
+        
+        function getDaysRemaining() {
+            const now = new Date();
+            const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+            return lastDay - now.getDate();
+        }
+        
+        function getStatus(actual, budget) {
+            if (budget === 0) return { class: 'on-track', text: 'No Budget' };
+            
+            const now = new Date();
+            const dayOfMonth = now.getDate();
+            const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+            const expectedPercent = (dayOfMonth / daysInMonth) * 100;
+            const actualPercent = (actual / budget) * 100;
+            
+            if (actualPercent >= expectedPercent) {
+                return { class: 'ahead', text: 'On Track' };
+            } else if (actualPercent >= expectedPercent * 0.7) {
+                return { class: 'on-track', text: 'Slightly Behind' };
+            } else {
+                return { class: 'behind', text: 'Behind' };
+            }
+        }
+        
+        function getProgressClass(percent) {
+            if (percent >= 100) return 'excellent';
+            if (percent >= 75) return 'good';
+            if (percent >= 50) return 'warning';
+            return 'danger';
+        }
+        
+        // =====================================================
+        // SYNC WITH GOOGLE SHEETS
+        // =====================================================
+        async function syncFromSheet() {
+            setSyncStatus('syncing');
+            
+            try {
+                const response = await fetch(CONFIG.appsScriptUrl + '?action=getData');
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Update dashboard KPIs
+                    if (result.kpis) {
+                        Object.keys(result.kpis).forEach(key => {
+                            if (key.startsWith('dept_')) {
+                                // Department data
+                                const deptKey = key.replace('dept_', '');
+                                try {
+                                    const deptData = JSON.parse(result.kpis[key].value);
+                                    if (departments[deptKey]) {
+                                        departments[deptKey].actual = deptData.actual || 0;
+                                        departments[deptKey].jobs = deptData.jobs || 0;
+                                        departments[deptKey].grossProfit = deptData.grossProfit || 0;
+                                    }
+                                } catch(e) {}
+                            } else if (key.startsWith('budget_')) {
+                                // Budget data
+                                const deptKey = key.replace('budget_', '');
+                                if (departments[deptKey]) {
+                                    departments[deptKey].budget = parseFloat(result.kpis[key].value) || 0;
+                                }
+                            } else if (dashboardData.hasOwnProperty(key)) {
+                                dashboardData[key] = parseFloat(result.kpis[key].value) || 0;
+                                dashboardData.sources[key] = result.kpis[key].source;
+                            }
+                        });
+                    }
+                    
+                    // Update expenses
+                    if (result.expenses) {
+                        expenses = result.expenses;
+                    }
+                    
+                    renderAll();
+                    document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString();
+                    setSyncStatus('synced');
+                } else {
+                    throw new Error(result.error || 'Unknown error');
+                }
+            } catch (error) {
+                console.error('Sync error:', error);
+                setSyncStatus('synced');
+                document.getElementById('loadingOverlay').classList.add('hidden');
+            }
+            
+            document.getElementById('loadingOverlay').classList.add('hidden');
+        }
+        
+        function setSyncStatus(status) {
+            const statusEl = document.getElementById('syncStatus');
+            const textEl = document.getElementById('syncText');
+            statusEl.className = 'sync-status ' + status;
+            textEl.textContent = status === 'syncing' ? 'Syncing...' : 'Synced';
+        }
+        
+        // =====================================================
+        // EDIT KPIs
+        // =====================================================
+        function editKPI(key) {
+            const el = document.getElementById(key);
+            const currentValue = dashboardData[key] || 0;
+            const newValue = prompt(`Edit ${key}:`, currentValue);
+            
+            if (newValue !== null && !isNaN(parseFloat(newValue))) {
+                dashboardData[key] = parseFloat(newValue);
+                dashboardData.sources[key] = 'manual';
+                renderAll();
+                saveKPI(key, parseFloat(newValue), 'manual');
+            }
+        }
+        
+        function editBudget(deptKey) {
+            const dept = departments[deptKey];
+            const newValue = prompt(`Edit ${dept.name} Budget:`, dept.budget);
+            
+            if (newValue !== null && !isNaN(parseFloat(newValue))) {
+                departments[deptKey].budget = parseFloat(newValue);
+                renderAll();
+                saveKPI('budget_' + deptKey, parseFloat(newValue), 'manual');
+            }
+        }
+        
+        async function saveKPI(key, value, source) {
+            try {
+                await fetch(CONFIG.appsScriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'updateKPI',
+                        key: key,
+                        value: value,
+                        source: source
+                    })
+                });
+                showToast('✓ Saved');
+            } catch (error) {
+                showToast('Save failed', true);
+            }
+        }
+        
+        // =====================================================
+        // RENDER FUNCTIONS
+        // =====================================================
+        function renderAll() {
+            renderKPIs();
+            renderMonthHeader();
+            renderCompanyTotals();
+            renderDepartments();
+            generateForecast();
+        }
+        
+        function renderKPIs() {
+            document.getElementById('bankBalance').textContent = formatCurrency(dashboardData.bankBalance);
+            document.getElementById('revenueMTD').textContent = formatCurrency(dashboardData.revenueMTD);
+            document.getElementById('paidMTD').textContent = formatCurrency(dashboardData.paidMTD);
+            document.getElementById('cashIn').textContent = formatCurrency(dashboardData.cashIn30d);
+            document.getElementById('cashOut').textContent = formatCurrency(dashboardData.cashOut30d);
+            document.getElementById('arTotal').textContent = formatCurrency(dashboardData.arTotal);
+            document.getElementById('arCount').textContent = (dashboardData.arCount || 0) + ' invoices';
+            document.getElementById('apTotal').textContent = formatCurrency(dashboardData.apTotal);
+            document.getElementById('apCount').textContent = (dashboardData.apCount || 0) + ' bills';
+            
+            // Pending Revenue
+            document.getElementById('unscheduledRevenue').textContent = formatCurrency(dashboardData.unscheduledRevenue);
+            document.getElementById('unscheduledCount').textContent = (dashboardData.unscheduledCount || 0) + ' jobs';
+            document.getElementById('scheduledRevenue').textContent = formatCurrency(dashboardData.scheduledRevenue);
+            document.getElementById('scheduledCount').textContent = (dashboardData.scheduledCount || 0) + ' jobs';
+            document.getElementById('inProgressRevenue').textContent = formatCurrency(dashboardData.inProgressRevenue);
+            document.getElementById('inProgressCount').textContent = (dashboardData.inProgressCount || 0) + ' jobs';
+            document.getElementById('totalPendingRevenue').textContent = formatCurrency(dashboardData.totalPendingRevenue);
+            
+            // Update source indicators
+            Object.keys(dashboardData.sources || {}).forEach(key => {
+                const sourceEl = document.getElementById(key + 'Source');
+                if (sourceEl) {
+                    const isAuto = dashboardData.sources[key] === 'auto';
+                    sourceEl.textContent = isAuto ? 'HCP' : 'Manual';
+                    sourceEl.className = 'data-source ' + (isAuto ? 'auto' : 'manual');
+                }
+            });
+        }
+        
+        function renderMonthHeader() {
+            const now = new Date();
+            document.getElementById('monthTitle').textContent = 
+                MONTH_NAMES[now.getMonth()] + ' ' + now.getFullYear();
+            document.getElementById('daysLeft').textContent = 
+                getDaysRemaining() + ' days remaining';
+        }
+        
+        function renderCompanyTotals() {
+            let totals = { budget: 0, actual: 0, jobs: 0, grossProfit: 0 };
+            
+            Object.values(departments).forEach(dept => {
+                totals.budget += dept.budget;
+                totals.actual += dept.actual;
+                totals.jobs += dept.jobs;
+                totals.grossProfit += dept.grossProfit;
+            });
+            
+            totals.variance = totals.actual - totals.budget;
+            totals.percent = totals.budget > 0 ? (totals.actual / totals.budget * 100) : 0;
+            totals.avgTicket = totals.jobs > 0 ? totals.actual / totals.jobs : 0;
+            
+            document.getElementById('compBudget').textContent = formatCurrency(totals.budget);
+            document.getElementById('compActual').textContent = formatCurrency(totals.actual);
+            
+            const varianceEl = document.getElementById('compVariance');
+            varianceEl.textContent = (totals.variance >= 0 ? '+' : '') + formatCurrency(totals.variance);
+            varianceEl.className = 'total-value ' + (totals.variance >= 0 ? 'positive' : 'negative');
+            
+            document.getElementById('compPercent').textContent = totals.percent.toFixed(1) + '%';
+            document.getElementById('compJobs').textContent = totals.jobs;
+            document.getElementById('compAvgTicket').textContent = formatCurrency(totals.avgTicket);
+            document.getElementById('compGrossProfit').textContent = formatCurrency(totals.grossProfit);
+        }
+        
+        function renderDeptCard(deptKey, type) {
+            const dept = departments[deptKey];
+            const variance = dept.actual - dept.budget;
+            const percent = dept.budget > 0 ? (dept.actual / dept.budget * 100) : 0;
+            const avgTicket = dept.jobs > 0 ? dept.actual / dept.jobs : 0;
+            const status = getStatus(dept.actual, dept.budget);
+            const progressClass = getProgressClass(percent);
+            
+            return `
+                <div class="dept-card ${type}">
+                    <div class="dept-card-header">
+                        <div class="dept-name">${dept.name}</div>
+                        <div class="dept-status ${status.class}">${status.text}</div>
+                    </div>
+                    <div class="dept-card-body">
+                        <div class="main-numbers">
+                            <div class="number-box">
+                                <div class="number-label">Budget</div>
+                                <div class="number-value budget" onclick="editBudget('${deptKey}')">${formatCurrency(dept.budget)}</div>
+                            </div>
+                            <div class="number-box">
+                                <div class="number-label">Actual</div>
+                                <div class="number-value actual">${formatCurrency(dept.actual)}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="progress-section">
+                            <div class="progress-header">
+                                <span>${percent.toFixed(1)}% of budget</span>
+                                <span>${variance >= 0 ? '+' : ''}${formatCurrency(variance)}</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill ${progressClass}" style="width: ${Math.min(100, percent)}%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-label">Jobs</div>
+                                <div class="stat-value">${dept.jobs}</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">Avg Ticket</div>
+                                <div class="stat-value">${formatCurrency(avgTicket)}</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">GP</div>
+                                <div class="stat-value positive">${formatCurrency(dept.grossProfit)}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderDepartments() {
+            // Residential
+            document.getElementById('residentialGrid').innerHTML = 
+                renderDeptCard('res-replacement', 'residential') +
+                renderDeptCard('res-service', 'residential') +
+                renderDeptCard('res-maintenance', 'residential');
+            
+            // Commercial
+            document.getElementById('commercialGrid').innerHTML = 
+                renderDeptCard('com-replacement', 'commercial') +
+                renderDeptCard('com-service', 'commercial') +
+                renderDeptCard('com-maintenance', 'commercial');
+            
+            // New Construction
+            document.getElementById('constructionGrid').innerHTML = 
+                renderDeptCard('new-construction', 'construction');
+        }
+        
+        function calculateMonthlyTotal() {
+            return expenses.reduce((sum, exp) => {
+                if (exp.frequency === 'Monthly') return sum + exp.amount;
+                if (exp.frequency === 'Weekly') return sum + (exp.amount * 4);
+                if (exp.frequency === 'Bi-weekly') return sum + (exp.amount * 2);
+                return sum;
+            }, 0);
+        }
+        
+        function generateForecast() {
+            const grid = document.getElementById('forecastGrid');
+            grid.innerHTML = '';
+            
+            const weeklyNeed = calculateMonthlyTotal() / 4;
+            let runningBalance = dashboardData.bankBalance;
+            
+            const today = new Date();
+            
+            for (let week = 1; week <= 4; week++) {
+                const weekStart = new Date(today);
+                weekStart.setDate(today.getDate() + (week - 1) * 7);
+                const weekEnd = new Date(weekStart);
+                weekEnd.setDate(weekStart.getDate() + 6);
+                
+                runningBalance = runningBalance - weeklyNeed;
+                
+                const isPositive = runningBalance >= 0;
+                const weeksOfCoverage = weeklyNeed > 0 ? runningBalance / weeklyNeed : 0;
+                
+                const card = document.createElement('div');
+                card.className = 'forecast-card';
+                card.innerHTML = `
+                    <div class="week">Week ${week}</div>
+                    <div class="dates">${weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
+                    <div class="amount ${isPositive ? 'positive' : 'negative'}">${formatCurrency(runningBalance)}</div>
+                    <div class="detail">After ${formatCurrency(weeklyNeed)} expenses</div>
+                    <div class="detail" style="color: ${weeksOfCoverage < 2 ? '#ff6b6b' : '#00ff88'}">${weeksOfCoverage.toFixed(1)} weeks coverage</div>
+                `;
+                grid.appendChild(card);
+            }
+        }
+        
+        function exportData() {
+            const data = { 
+                dashboardData, 
+                departments,
+                expenses, 
+                exportDate: new Date().toISOString() 
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `jcm_dashboard_backup_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            showToast('✓ Data exported');
+        }
+        
+        // =====================================================
+        // INITIALIZE
+        // =====================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            syncFromSheet();
+            setInterval(syncFromSheet, CONFIG.refreshInterval);
+        });
+    </script>
+</body>
+</html>
