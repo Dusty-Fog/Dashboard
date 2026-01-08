@@ -45,8 +45,6 @@
         }
         
         .header-btn:hover { background: rgba(127, 179, 211, 0.2); }
-        .header-btn.danger { border-color: rgba(255, 107, 107, 0.3); color: #ff6b6b; }
-        .header-btn.danger:hover { background: rgba(255, 107, 107, 0.2); }
         .header-btn.success { border-color: rgba(0, 255, 136, 0.3); color: #00ff88; }
         .header-btn.success:hover { background: rgba(0, 255, 136, 0.2); }
         
@@ -217,7 +215,7 @@
         
         /* Expense Table */
         .expense-table-container {
-            max-height: 400px;
+            max-height: 500px;
             overflow-y: auto;
         }
         
@@ -228,24 +226,31 @@
         
         .expense-table th {
             text-align: left;
-            padding: 10px;
-            font-size: 11px;
+            padding: 10px 8px;
+            font-size: 10px;
             color: #7fb3d3;
             text-transform: uppercase;
             border-bottom: 1px solid rgba(127, 179, 211, 0.2);
             position: sticky;
             top: 0;
             background: #1e3a5f;
+            z-index: 10;
+        }
+        
+        .expense-table th.week-col {
+            text-align: center;
+            width: 50px;
         }
         
         .expense-table td {
-            padding: 10px;
+            padding: 10px 8px;
             font-size: 13px;
             border-bottom: 1px solid rgba(127, 179, 211, 0.1);
         }
         
         .expense-table tr:hover { background: rgba(127, 179, 211, 0.05); }
-        .expense-table tr.paid-row { background: rgba(0, 255, 136, 0.05); }
+        .expense-table tr.fully-paid { background: rgba(0, 255, 136, 0.08); }
+        .expense-table tr.partially-paid { background: rgba(255, 170, 0, 0.05); }
         
         .expense-table input, .expense-table select {
             background: rgba(0,0,0,0.2);
@@ -262,15 +267,49 @@
             border-color: #7fb3d3;
         }
         
-        /* Paid Status Dropdown */
+        /* Week Checkboxes */
+        .week-checkbox {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            border: 2px solid rgba(255, 170, 0, 0.5);
+            background: rgba(255, 170, 0, 0.1);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: all 0.2s;
+            margin: 0 auto;
+        }
+        
+        .week-checkbox:hover {
+            border-color: rgba(255, 170, 0, 0.8);
+            background: rgba(255, 170, 0, 0.2);
+        }
+        
+        .week-checkbox.checked {
+            border-color: rgba(0, 255, 136, 0.8);
+            background: rgba(0, 255, 136, 0.3);
+            color: #00ff88;
+        }
+        
+        .week-checkbox.disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            border-color: rgba(127, 179, 211, 0.2);
+            background: transparent;
+        }
+        
+        /* Monthly Paid Status */
         .paid-select {
             padding: 6px 10px;
             border-radius: 6px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
             cursor: pointer;
             border: none;
-            min-width: 100px;
+            min-width: 90px;
         }
         
         .paid-select.unpaid {
@@ -304,6 +343,17 @@
             background: rgba(127, 179, 211, 0.2);
             color: #7fb3d3;
         }
+        
+        .freq-badge {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+        
+        .freq-badge.weekly { background: rgba(0, 200, 255, 0.2); color: #00c8ff; }
+        .freq-badge.biweekly { background: rgba(200, 100, 255, 0.2); color: #c864ff; }
+        .freq-badge.monthly { background: rgba(127, 179, 211, 0.2); color: #7fb3d3; }
         
         /* Add Row */
         .add-row {
@@ -374,9 +424,11 @@
             gap: 15px;
         }
         
-        .week-total-item { text-align: center; }
+        .week-total-item { text-align: center; padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.2); }
         .week-total-item .label { font-size: 10px; color: #888; margin-bottom: 3px; }
         .week-total-item .value { font-size: 16px; font-weight: 600; color: #ff6b6b; }
+        .week-total-item .paid { font-size: 11px; color: #00ff88; margin-top: 3px; }
+        .week-total-item .unpaid { font-size: 11px; color: #ffaa00; margin-top: 3px; }
         
         /* Reset Button */
         .reset-btn {
@@ -592,7 +644,7 @@
             <span>🔄 Monthly Recurring Expenses</span>
             <div style="display: flex; align-items: center; gap: 15px;">
                 <span class="month-indicator" id="currentMonth">January 2026</span>
-                <button class="reset-btn" onclick="resetAllPaidStatus()">🔄 Reset All to Unpaid</button>
+                <button class="reset-btn" onclick="resetAllPaidStatus()">🔄 Reset All</button>
             </div>
         </div>
         
@@ -603,9 +655,11 @@
                         <th>Expense Name</th>
                         <th>Amount</th>
                         <th>Frequency</th>
-                        <th>Payment Day</th>
                         <th>Category</th>
-                        <th>Status</th>
+                        <th class="week-col">W1</th>
+                        <th class="week-col">W2</th>
+                        <th class="week-col">W3</th>
+                        <th class="week-col">W4</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -622,16 +676,16 @@
                 <option value="Weekly">Weekly</option>
                 <option value="Bi-weekly">Bi-weekly</option>
             </select>
-            <input type="text" id="newDay" placeholder="Day (15th)" style="width: 90px;">
             <select id="newCategory" style="width: 120px;">
-                <option value="loans">💳 Loans</option>
-                <option value="payroll">👷 Payroll</option>
-                <option value="credit">💰 Credit Cards</option>
-                <option value="marketing">📣 Marketing</option>
-                <option value="software">💻 Software</option>
-                <option value="utilities">🔌 Utilities</option>
-                <option value="insurance">🛡️ Insurance</option>
-                <option value="services">🔧 Services</option>
+                <option value="💳 Loans">💳 Loans</option>
+                <option value="👷 Payroll">👷 Payroll</option>
+                <option value="💰 Credit Cards">💰 Credit Cards</option>
+                <option value="📣 Marketing">📣 Marketing</option>
+                <option value="💻 Software">💻 Software</option>
+                <option value="🔌 Utilities">🔌 Utilities</option>
+                <option value="🛡️ Insurance">🛡️ Insurance</option>
+                <option value="🔧 Services">🔧 Services</option>
+                <option value="⛽ Fuel">⛽ Fuel</option>
             </select>
             <button class="add-btn" onclick="addExpense()">+ Add</button>
         </div>
@@ -661,18 +715,26 @@
             <div class="week-total-item">
                 <div class="label">Week 1 (1st-7th)</div>
                 <div class="value" id="week1Total">$0</div>
+                <div class="paid" id="week1Paid">✅ $0 paid</div>
+                <div class="unpaid" id="week1Unpaid">⚠️ $0 owed</div>
             </div>
             <div class="week-total-item">
                 <div class="label">Week 2 (8th-14th)</div>
                 <div class="value" id="week2Total">$0</div>
+                <div class="paid" id="week2Paid">✅ $0 paid</div>
+                <div class="unpaid" id="week2Unpaid">⚠️ $0 owed</div>
             </div>
             <div class="week-total-item">
                 <div class="label">Week 3 (15th-21st)</div>
                 <div class="value" id="week3Total">$0</div>
+                <div class="paid" id="week3Paid">✅ $0 paid</div>
+                <div class="unpaid" id="week3Unpaid">⚠️ $0 owed</div>
             </div>
             <div class="week-total-item">
                 <div class="label">Week 4 (22nd-31st)</div>
                 <div class="value" id="week4Total">$0</div>
+                <div class="paid" id="week4Paid">✅ $0 paid</div>
+                <div class="unpaid" id="week4Unpaid">⚠️ $0 owed</div>
             </div>
         </div>
     </div>
@@ -686,17 +748,15 @@
         // =====================================================
         const CONFIG = {
             appsScriptUrl: 'https://script.google.com/macros/s/AKfycbwAW5kGhH_SpXagr_lxMYgbjXIsWVBxX-oCNhhegLD7k82JooMg3BLWcYHI_XRLBjxUvg/exec',
-            refreshInterval: 300000, // 5 minutes
+            refreshInterval: 300000,
             debounceDelay: 1000
         };
         
         // State
         let expenses = [];
-        let saveTimeout = null;
         let kpiSaveTimeout = null;
-        let currentPaidMonth = null; // Track which month the paid statuses are for
         
-        // Dashboard data with defaults
+        // Dashboard data
         let dashboardData = {
             bankBalance: 0,
             cashIn30d: 0,
@@ -708,7 +768,6 @@
             revenueMTD: 0,
             paidMTD: 0,
             budgetMTD: 145606,
-            // Pending Revenue
             unscheduledRevenue: 0,
             scheduledRevenue: 0,
             inProgressRevenue: 0,
@@ -716,7 +775,6 @@
             unscheduledCount: 0,
             scheduledCount: 0,
             inProgressCount: 0,
-            // Track data sources
             sources: {}
         };
         
@@ -752,11 +810,6 @@
             document.getElementById('loadingOverlay').className = show ? 'loading-overlay' : 'loading-overlay hidden';
         }
         
-        function parseDayNumber(day) {
-            const match = String(day).match(/\d+/);
-            return match ? parseInt(match[0]) : 15;
-        }
-        
         function getCurrentMonthKey() {
             const now = new Date();
             return `${now.getFullYear()}-${now.getMonth() + 1}`;
@@ -775,9 +828,8 @@
             const savedMonth = localStorage.getItem('jcm_paid_month');
             
             if (savedMonth !== currentMonth) {
-                // New month! Reset all paid statuses
                 expenses.forEach(exp => {
-                    exp.paidThisMonth = false;
+                    exp.paidWeeks = { w1: false, w2: false, w3: false, w4: false };
                 });
                 localStorage.setItem('jcm_paid_month', currentMonth);
                 saveExpensesToLocal();
@@ -785,17 +837,49 @@
             }
         }
         
-        function togglePaidStatus(index, status) {
-            expenses[index].paidThisMonth = (status === 'paid');
+        function toggleWeekPaid(index, week) {
+            const exp = expenses[index];
+            if (!exp.paidWeeks) exp.paidWeeks = { w1: false, w2: false, w3: false, w4: false };
+            
+            // Check if this week is applicable for this expense
+            if (!isWeekApplicable(exp, week)) return;
+            
+            exp.paidWeeks[week] = !exp.paidWeeks[week];
             renderAll();
             saveExpensesToLocal();
-            showToast(status === 'paid' ? '✅ Marked as paid' : '⚠️ Marked as unpaid');
+            showToast(exp.paidWeeks[week] ? '✅ Marked as paid' : '⚠️ Marked as unpaid');
+        }
+        
+        function isWeekApplicable(exp, week) {
+            if (exp.frequency === 'Weekly') return true;
+            if (exp.frequency === 'Bi-weekly') return week === 'w1' || week === 'w3';
+            if (exp.frequency === 'Monthly') return week === 'w1'; // Monthly uses W1 as the single checkbox
+            return false;
+        }
+        
+        function getApplicableWeeks(exp) {
+            if (exp.frequency === 'Weekly') return ['w1', 'w2', 'w3', 'w4'];
+            if (exp.frequency === 'Bi-weekly') return ['w1', 'w3'];
+            return ['w1']; // Monthly
+        }
+        
+        function isFullyPaid(exp) {
+            if (!exp.paidWeeks) return false;
+            const applicable = getApplicableWeeks(exp);
+            return applicable.every(w => exp.paidWeeks[w]);
+        }
+        
+        function isPartiallyPaid(exp) {
+            if (!exp.paidWeeks) return false;
+            const applicable = getApplicableWeeks(exp);
+            const paidCount = applicable.filter(w => exp.paidWeeks[w]).length;
+            return paidCount > 0 && paidCount < applicable.length;
         }
         
         function resetAllPaidStatus() {
             if (confirm('Reset all expenses to UNPAID for this month?')) {
                 expenses.forEach(exp => {
-                    exp.paidThisMonth = false;
+                    exp.paidWeeks = { w1: false, w2: false, w3: false, w4: false };
                 });
                 renderAll();
                 saveExpensesToLocal();
@@ -809,7 +893,52 @@
         }
         
         // =====================================================
-        // API FUNCTIONS - Using handleGetData
+        // CALCULATIONS
+        // =====================================================
+        function calculateMonthlyTotal() {
+            return expenses.reduce((total, exp) => {
+                if (exp.frequency === 'Weekly') return total + (exp.amount * 4);
+                if (exp.frequency === 'Bi-weekly') return total + (exp.amount * 2);
+                return total + exp.amount;
+            }, 0);
+        }
+        
+        function calculatePaidTotal() {
+            return expenses.reduce((total, exp) => {
+                if (!exp.paidWeeks) return total;
+                const applicable = getApplicableWeeks(exp);
+                const paidCount = applicable.filter(w => exp.paidWeeks[w]).length;
+                return total + (exp.amount * paidCount);
+            }, 0);
+        }
+        
+        function calculateUnpaidTotal() {
+            return calculateMonthlyTotal() - calculatePaidTotal();
+        }
+        
+        function calculateWeekTotal(weekNum) {
+            const weekKey = 'w' + weekNum;
+            return expenses.reduce((total, exp) => {
+                if (!isWeekApplicable(exp, weekKey)) return total;
+                return total + exp.amount;
+            }, 0);
+        }
+        
+        function calculateWeekPaid(weekNum) {
+            const weekKey = 'w' + weekNum;
+            return expenses.reduce((total, exp) => {
+                if (!isWeekApplicable(exp, weekKey)) return total;
+                if (exp.paidWeeks && exp.paidWeeks[weekKey]) return total + exp.amount;
+                return total;
+            }, 0);
+        }
+        
+        function calculateWeekUnpaid(weekNum) {
+            return calculateWeekTotal(weekNum) - calculateWeekPaid(weekNum);
+        }
+        
+        // =====================================================
+        // API FUNCTIONS
         // =====================================================
         async function syncFromSheet() {
             setSyncStatus('syncing');
@@ -820,12 +949,10 @@
                 const result = await response.json();
                 
                 if (result.success) {
-                    // Update KPIs from sheet
                     if (result.kpis) {
                         Object.keys(result.kpis).forEach(key => {
                             const value = parseFloat(result.kpis[key].value) || 0;
                             const source = result.kpis[key].source || 'auto';
-                            
                             if (dashboardData.hasOwnProperty(key)) {
                                 dashboardData[key] = value;
                                 dashboardData.sources[key] = source;
@@ -833,22 +960,20 @@
                         });
                     }
                     
-                    // Update expenses from sheet, but preserve local paid status
                     if (result.expenses && result.expenses.length > 0) {
+                        // Preserve local paid status
                         const localPaidStatus = {};
                         expenses.forEach(exp => {
-                            if (exp.id) localPaidStatus[exp.id] = exp.paidThisMonth;
+                            if (exp.id) localPaidStatus[exp.id] = exp.paidWeeks;
                         });
                         
                         expenses = result.expenses.map(exp => ({
                             ...exp,
-                            paidThisMonth: localPaidStatus[exp.id] || false
+                            paidWeeks: localPaidStatus[exp.id] || { w1: false, w2: false, w3: false, w4: false }
                         }));
                     }
                     
-                    // Check if we need to reset for new month
                     checkAndResetForNewMonth();
-                    
                     renderAll();
                     showToast('✓ Synced from Google Sheets');
                     setSyncStatus('synced');
@@ -871,18 +996,12 @@
                     method: 'POST',
                     mode: 'no-cors',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: 'updateKPI',
-                        key: key,
-                        value: value,
-                        source: source
-                    })
+                    body: JSON.stringify({ action: 'updateKPI', key, value, source })
                 });
                 showToast('✓ Saved');
             } catch (error) {
                 showToast('Save failed', true);
             }
-            
             localStorage.setItem('jcm_kpis_backup', JSON.stringify(dashboardData));
         }
         
@@ -894,10 +1013,8 @@
         function loadFromLocalStorage() {
             const savedExpenses = localStorage.getItem('jcm_expenses_backup');
             const savedKPIs = localStorage.getItem('jcm_kpis_backup');
-            
             if (savedExpenses) expenses = JSON.parse(savedExpenses);
             if (savedKPIs) Object.assign(dashboardData, JSON.parse(savedKPIs));
-            
             checkAndResetForNewMonth();
             renderAll();
         }
@@ -918,7 +1035,6 @@
                 const newValue = parseCurrency(input.value);
                 dashboardData[field] = newValue;
                 dashboardData.sources[field] = 'manual';
-                
                 el.textContent = formatCurrency(newValue);
                 
                 const sourceEl = document.getElementById(field + 'Source');
@@ -934,58 +1050,14 @@
             
             input.onblur = saveValue;
             input.onkeydown = (e) => {
-                if (e.key === 'Enter') {
-                    input.blur();
-                } else if (e.key === 'Escape') {
-                    el.textContent = formatCurrency(currentValue);
-                }
+                if (e.key === 'Enter') input.blur();
+                else if (e.key === 'Escape') el.textContent = formatCurrency(currentValue);
             };
             
             el.textContent = '';
             el.appendChild(input);
             input.focus();
             input.select();
-        }
-        
-        // =====================================================
-        // CALCULATIONS
-        // =====================================================
-        function calculateMonthlyTotal() {
-            return expenses.reduce((total, exp) => {
-                if (exp.frequency === 'Weekly') return total + (exp.amount * 4);
-                if (exp.frequency === 'Bi-weekly') return total + (exp.amount * 2);
-                return total + exp.amount;
-            }, 0);
-        }
-        
-        function calculatePaidTotal() {
-            return expenses.reduce((total, exp) => {
-                if (!exp.paidThisMonth) return total;
-                if (exp.frequency === 'Weekly') return total + (exp.amount * 4);
-                if (exp.frequency === 'Bi-weekly') return total + (exp.amount * 2);
-                return total + exp.amount;
-            }, 0);
-        }
-        
-        function calculateUnpaidTotal() {
-            return expenses.reduce((total, exp) => {
-                if (exp.paidThisMonth) return total;
-                if (exp.frequency === 'Weekly') return total + (exp.amount * 4);
-                if (exp.frequency === 'Bi-weekly') return total + (exp.amount * 2);
-                return total + exp.amount;
-            }, 0);
-        }
-        
-        function calculateWeekTotal(weekNum) {
-            const ranges = { 1: [1, 7], 2: [8, 14], 3: [15, 21], 4: [22, 31] };
-            const [start, end] = ranges[weekNum];
-            
-            return expenses.reduce((total, exp) => {
-                if (exp.frequency === 'Weekly') return total + exp.amount;
-                if (exp.frequency === 'Bi-weekly') return (weekNum === 1 || weekNum === 3) ? total + exp.amount : total;
-                const day = parseDayNumber(exp.day);
-                return (day >= start && day <= end) ? total + exp.amount : total;
-            }, 0);
         }
         
         // =====================================================
@@ -1021,16 +1093,6 @@
             document.getElementById('inProgressCount').textContent = (dashboardData.inProgressCount || 0) + ' jobs';
             document.getElementById('totalPendingRevenue').textContent = formatCurrency(dashboardData.totalPendingRevenue);
             
-            // Update source indicators
-            Object.keys(dashboardData.sources || {}).forEach(key => {
-                const sourceEl = document.getElementById(key + 'Source');
-                if (sourceEl) {
-                    const isAuto = dashboardData.sources[key] === 'auto';
-                    sourceEl.textContent = isAuto ? 'HCP' : 'Manual';
-                    sourceEl.className = 'data-source ' + (isAuto ? 'auto' : 'manual');
-                }
-            });
-            
             // Force bank balance to always show manual
             const bankSource = document.getElementById('bankBalanceSource');
             if (bankSource) {
@@ -1039,19 +1101,17 @@
             }
             
             // Expense Totals
-            const monthlyTotal = calculateMonthlyTotal();
-            const paidTotal = calculatePaidTotal();
-            const unpaidTotal = calculateUnpaidTotal();
+            document.getElementById('totalMonthly').textContent = formatCurrency(calculateMonthlyTotal());
+            document.getElementById('totalPaid').textContent = formatCurrency(calculatePaidTotal());
+            document.getElementById('totalUnpaid').textContent = formatCurrency(calculateUnpaidTotal());
+            document.getElementById('weeklyAverage').textContent = formatCurrency(calculateMonthlyTotal() / 4);
             
-            document.getElementById('totalMonthly').textContent = formatCurrency(monthlyTotal);
-            document.getElementById('totalPaid').textContent = formatCurrency(paidTotal);
-            document.getElementById('totalUnpaid').textContent = formatCurrency(unpaidTotal);
-            document.getElementById('weeklyAverage').textContent = formatCurrency(monthlyTotal / 4);
-            
-            document.getElementById('week1Total').textContent = formatCurrency(calculateWeekTotal(1));
-            document.getElementById('week2Total').textContent = formatCurrency(calculateWeekTotal(2));
-            document.getElementById('week3Total').textContent = formatCurrency(calculateWeekTotal(3));
-            document.getElementById('week4Total').textContent = formatCurrency(calculateWeekTotal(4));
+            // Week Totals with Paid/Unpaid
+            for (let w = 1; w <= 4; w++) {
+                document.getElementById('week' + w + 'Total').textContent = formatCurrency(calculateWeekTotal(w));
+                document.getElementById('week' + w + 'Paid').textContent = '✅ ' + formatCurrency(calculateWeekPaid(w)) + ' paid';
+                document.getElementById('week' + w + 'Unpaid').textContent = '⚠️ ' + formatCurrency(calculateWeekUnpaid(w)) + ' owed';
+            }
         }
         
         function renderExpenseTable() {
@@ -1059,12 +1119,41 @@
             tbody.innerHTML = '';
             
             expenses.forEach((exp, index) => {
-                const isPaid = exp.paidThisMonth === true;
+                if (!exp.paidWeeks) exp.paidWeeks = { w1: false, w2: false, w3: false, w4: false };
+                
+                const fullyPaid = isFullyPaid(exp);
+                const partiallyPaid = isPartiallyPaid(exp);
+                
                 const row = document.createElement('tr');
-                row.className = isPaid ? 'paid-row' : '';
+                row.className = fullyPaid ? 'fully-paid' : (partiallyPaid ? 'partially-paid' : '');
+                
+                // Frequency badge
+                let freqBadge = '';
+                if (exp.frequency === 'Weekly') freqBadge = '<span class="freq-badge weekly">Weekly</span>';
+                else if (exp.frequency === 'Bi-weekly') freqBadge = '<span class="freq-badge biweekly">Bi-weekly</span>';
+                else freqBadge = '<span class="freq-badge monthly">Monthly</span>';
+                
+                // Week checkboxes
+                let weekCheckboxes = '';
+                ['w1', 'w2', 'w3', 'w4'].forEach(week => {
+                    const applicable = isWeekApplicable(exp, week);
+                    const checked = exp.paidWeeks[week];
+                    
+                    if (applicable) {
+                        weekCheckboxes += `
+                            <td>
+                                <div class="week-checkbox ${checked ? 'checked' : ''}" onclick="toggleWeekPaid(${index}, '${week}')">
+                                    ${checked ? '✓' : ''}
+                                </div>
+                            </td>`;
+                    } else {
+                        weekCheckboxes += `<td><div class="week-checkbox disabled">–</div></td>`;
+                    }
+                });
+                
                 row.innerHTML = `
                     <td><input type="text" value="${exp.name || ''}" onchange="updateExpense(${index}, 'name', this.value)"></td>
-                    <td><input type="number" value="${exp.amount || 0}" style="width: 100px;" onchange="updateExpense(${index}, 'amount', parseFloat(this.value))"></td>
+                    <td><input type="number" value="${exp.amount || 0}" style="width: 90px;" onchange="updateExpense(${index}, 'amount', parseFloat(this.value))"></td>
                     <td>
                         <select onchange="updateExpense(${index}, 'frequency', this.value)">
                             <option value="Monthly" ${exp.frequency === 'Monthly' ? 'selected' : ''}>Monthly</option>
@@ -1072,14 +1161,8 @@
                             <option value="Bi-weekly" ${exp.frequency === 'Bi-weekly' ? 'selected' : ''}>Bi-weekly</option>
                         </select>
                     </td>
-                    <td><input type="text" value="${exp.day || ''}" style="width: 80px;" onchange="updateExpense(${index}, 'day', this.value)"></td>
                     <td><span class="category-badge">${exp.category || '🔧'}</span></td>
-                    <td>
-                        <select class="paid-select ${isPaid ? 'paid' : 'unpaid'}" onchange="togglePaidStatus(${index}, this.value)">
-                            <option value="unpaid" ${!isPaid ? 'selected' : ''}>☐ Unpaid</option>
-                            <option value="paid" ${isPaid ? 'selected' : ''}>✅ Paid</option>
-                        </select>
-                    </td>
+                    ${weekCheckboxes}
                     <td><button class="delete-btn" onclick="deleteExpense(${index})">🗑️</button></td>
                 `;
                 tbody.appendChild(row);
@@ -1092,7 +1175,6 @@
             
             const weeklyNeed = calculateMonthlyTotal() / 4;
             let runningBalance = dashboardData.bankBalance;
-            
             const today = new Date();
             
             for (let week = 1; week <= 4; week++) {
@@ -1101,7 +1183,8 @@
                 const weekEnd = new Date(weekStart);
                 weekEnd.setDate(weekStart.getDate() + 6);
                 
-                const weekExpenses = calculateWeekTotal(week);
+                // Use UNPAID expenses for forecast (already paid doesn't affect future)
+                const weekExpenses = calculateWeekUnpaid(week);
                 runningBalance = runningBalance - weekExpenses;
                 
                 const isPositive = runningBalance >= 0;
@@ -1113,7 +1196,7 @@
                     <div class="week">Week ${week}</div>
                     <div class="dates">${weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
                     <div class="amount ${isPositive ? 'positive' : 'negative'}">${formatCurrency(runningBalance)}</div>
-                    <div class="detail">After ${formatCurrency(weekExpenses)} expenses</div>
+                    <div class="detail">After ${formatCurrency(weekExpenses)} unpaid expenses</div>
                     <div class="detail" style="color: ${weeksOfCoverage < 2 ? '#ff6b6b' : '#00ff88'}">${weeksOfCoverage.toFixed(1)} weeks coverage</div>
                 `;
                 grid.appendChild(card);
@@ -1144,6 +1227,10 @@
         // =====================================================
         function updateExpense(index, field, value) {
             expenses[index][field] = value;
+            // Reset paid status when frequency changes
+            if (field === 'frequency') {
+                expenses[index].paidWeeks = { w1: false, w2: false, w3: false, w4: false };
+            }
             renderAll();
             saveExpensesToLocal();
         }
@@ -1160,7 +1247,6 @@
             const name = document.getElementById('newName').value.trim();
             const amount = parseFloat(document.getElementById('newAmount').value) || 0;
             const frequency = document.getElementById('newFrequency').value;
-            const day = document.getElementById('newDay').value || '15th';
             const category = document.getElementById('newCategory').value;
             
             if (!name || !amount) {
@@ -1170,14 +1256,13 @@
             
             expenses.push({
                 id: Date.now(),
-                name, amount, frequency, day, category, 
+                name, amount, frequency, category,
                 active: true,
-                paidThisMonth: false
+                paidWeeks: { w1: false, w2: false, w3: false, w4: false }
             });
             
             document.getElementById('newName').value = '';
             document.getElementById('newAmount').value = '';
-            document.getElementById('newDay').value = '';
             
             renderAll();
             saveExpensesToLocal();
@@ -1199,12 +1284,8 @@
         // INITIALIZE
         // =====================================================
         document.addEventListener('DOMContentLoaded', () => {
-            // Load local storage first to get paid statuses
             const savedExpenses = localStorage.getItem('jcm_expenses_backup');
-            if (savedExpenses) {
-                expenses = JSON.parse(savedExpenses);
-            }
-            
+            if (savedExpenses) expenses = JSON.parse(savedExpenses);
             syncFromSheet();
             setInterval(syncFromSheet, CONFIG.refreshInterval);
         });
