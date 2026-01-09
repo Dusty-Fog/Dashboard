@@ -36,18 +36,6 @@
             align-items: center;
         }
 
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .logo {
-            width: 60px;
-            height: auto;
-            border-radius: 8px;
-        }
-
         .header h1 {
             font-size: 2.2rem;
             font-weight: 700;
@@ -59,12 +47,6 @@
             font-size: 1rem;
             opacity: 0.9;
             margin-top: 5px;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 15px;
         }
 
         .live-indicator {
@@ -88,18 +70,6 @@
             0%, 100% { opacity: 1; transform: scale(1); }
             50% { opacity: 0.5; transform: scale(1.2); }
         }
-
-        .refresh-btn {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s;
-        }
-        .refresh-btn:hover { background: rgba(255,255,255,0.3); }
 
         /* Company Overview */
         .company-overview {
@@ -188,10 +158,6 @@
             border-left: 4px solid #ff6b6b;
         }
 
-        .kpi-card.pending {
-            border-left: 4px solid #ffaa00;
-        }
-
         .kpi-name {
             font-size: 0.8rem;
             text-transform: uppercase;
@@ -230,7 +196,7 @@
             color: #ff6b6b;
         }
 
-        /* Department Section - 12 MONTH VIEW */
+        /* Department Section */
         .department-section {
             margin-bottom: 30px;
         }
@@ -443,6 +409,36 @@
             to { transform: rotate(360deg); }
         }
 
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .department-months {
+                grid-template-columns: repeat(6, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+
+            .department-months {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .department-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .department-months {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
         /* Tab Navigation */
         .tab-nav {
             display: flex;
@@ -477,261 +473,19 @@
         .tab-content.active {
             display: block;
         }
-
-        /* ================================================
-           NEW: CURRENT MONTH SECTION STYLES
-           ================================================ */
-        .current-month-section {
-            background: linear-gradient(145deg, #1e3a5f 0%, #16213e 100%);
-            border-radius: 16px;
-            padding: 25px;
-            margin-bottom: 25px;
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-        }
-
-        .cm-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #e94560;
-        }
-
-        .cm-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #e94560;
-        }
-
-        .days-remaining {
-            background: rgba(233, 69, 96, 0.2);
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            color: #ff6b6b;
-        }
-
-        /* Company Totals Row */
-        .company-totals {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 15px;
-            margin-bottom: 25px;
-            padding: 20px;
-            background: rgba(0,0,0,0.2);
-            border-radius: 12px;
-        }
-
-        .company-total-card {
-            text-align: center;
-            padding: 15px 10px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 10px;
-        }
-
-        .company-total-card .label {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            opacity: 0.7;
-            margin-bottom: 8px;
-        }
-
-        .company-total-card .value {
-            font-size: 1.4rem;
-            font-weight: 700;
-        }
-
-        .company-total-card .value.green { color: #00ff88; }
-        .company-total-card .value.red { color: #ff6b6b; }
-        .company-total-card .value.yellow { color: #ffaa00; }
-
-        /* Department Section Headers */
-        .dept-section-header {
-            font-size: 1rem;
-            font-weight: 600;
-            padding: 10px 15px;
-            margin: 20px 0 15px 0;
-            background: rgba(127, 179, 211, 0.1);
-            border-radius: 8px;
-            border-left: 3px solid #7fb3d3;
-            color: #7fb3d3;
-        }
-
-        /* Department Cards Grid */
-        .dept-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .dept-grid.single {
-            grid-template-columns: 1fr;
-            max-width: 400px;
-        }
-
-        .dept-card {
-            background: rgba(255,255,255,0.05);
-            border-radius: 12px;
-            padding: 20px;
-            border: 1px solid rgba(255,255,255,0.1);
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-
-        .dept-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-        }
-
-        .dept-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .dept-card .dept-name {
-            font-size: 1rem;
-            font-weight: 600;
-        }
-
-        .dept-status {
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .dept-status.on-track { background: rgba(0, 255, 136, 0.2); color: #00ff88; }
-        .dept-status.behind { background: rgba(255, 107, 107, 0.2); color: #ff6b6b; }
-        .dept-status.ahead { background: rgba(0, 200, 255, 0.2); color: #00c8ff; }
-
-        /* Progress Bar for Current Month */
-        .progress-container {
-            margin-bottom: 15px;
-        }
-
-        .cm-progress-bar {
-            height: 8px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 4px;
-            overflow: hidden;
-            margin-bottom: 5px;
-        }
-
-        .progress-fill {
-            height: 100%;
-            border-radius: 4px;
-            transition: width 0.5s ease;
-        }
-
-        .progress-fill.green { background: linear-gradient(90deg, #00ff88, #00cc6a); }
-        .progress-fill.yellow { background: linear-gradient(90deg, #ffaa00, #ff8800); }
-        .progress-fill.red { background: linear-gradient(90deg, #ff6b6b, #ff4444); }
-
-        .progress-labels {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.75rem;
-            opacity: 0.7;
-        }
-
-        /* Dept Stats Row */
-        .dept-stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            padding-top: 15px;
-            border-top: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .dept-stat {
-            text-align: center;
-        }
-
-        .dept-stat .label {
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            opacity: 0.6;
-            margin-bottom: 3px;
-        }
-
-        .dept-stat .value {
-            font-size: 1rem;
-            font-weight: 600;
-        }
-
-        /* Responsive */
-        @media (max-width: 1400px) {
-            .department-months {
-                grid-template-columns: repeat(6, 1fr);
-            }
-        }
-
-        @media (max-width: 1200px) {
-            .company-totals { grid-template-columns: repeat(4, 1fr); }
-            .dept-grid { grid-template-columns: repeat(2, 1fr); }
-            .department-months {
-                grid-template-columns: repeat(6, 1fr);
-            }
-        }
-
-        @media (max-width: 900px) {
-            .department-months {
-                grid-template-columns: repeat(4, 1fr);
-            }
-            .department-ytd {
-                flex-wrap: wrap;
-                gap: 15px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .header {
-                flex-direction: column;
-                text-align: center;
-                gap: 15px;
-            }
-            .company-totals { grid-template-columns: repeat(2, 1fr); }
-            .dept-grid { grid-template-columns: 1fr; }
-            .dept-grid.single { max-width: 100%; }
-            .department-months {
-                grid-template-columns: repeat(4, 1fr);
-            }
-            .department-header {
-                flex-direction: column;
-                gap: 15px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .department-months {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
     </style>
 </head>
 <body>
     <div class="dashboard-container">
         <!-- Header -->
         <div class="header">
-            <div class="header-left">
-                <img src="https://raw.githubusercontent.com/Dusty-Fog/Dashboard/main/JCM_Blue_Wizard.png" alt="JC Mechanical" class="logo">
-                <div>
-                    <h1>🔥 JC Mechanical</h1>
-                    <div class="header-subtitle">Executive Dashboard - 2026</div>
-                </div>
+            <div>
+                <h1>🔥 JC Mechanical</h1>
+                <div class="header-subtitle">Executive Dashboard - 2026</div>
             </div>
-            <div class="header-right">
-                <div class="live-indicator">
-                    <div class="live-dot"></div>
-                    <span id="lastUpdate">Loading...</span>
-                </div>
-                <button class="refresh-btn" onclick="loadDashboard()">🔄 Refresh</button>
+            <div class="live-indicator">
+                <div class="live-dot"></div>
+                <span id="lastUpdate">Loading...</span>
             </div>
         </div>
 
@@ -749,110 +503,15 @@
                 <!-- Populated by JavaScript -->
             </div>
 
-            <!-- Tab Navigation - ADDED CURRENT MONTH TAB -->
+            <!-- Tab Navigation -->
             <div class="tab-nav">
-                <button class="tab-btn active" onclick="showTab('currentMonth')">📅 Current Month</button>
-                <button class="tab-btn" onclick="showTab('kpis')">📊 KPIs</button>
+                <button class="tab-btn active" onclick="showTab('kpis')">📊 KPIs</button>
                 <button class="tab-btn" onclick="showTab('departments')">🏢 Departments</button>
                 <button class="tab-btn" onclick="showTab('employees')">👷 Employees</button>
             </div>
 
-            <!-- ================================================
-                 NEW: CURRENT MONTH TAB
-                 ================================================ -->
-            <div id="currentMonth" class="tab-content active">
-                <div class="current-month-section">
-                    <div class="cm-header">
-                        <div class="cm-title" id="currentMonthTitle">📅 January 2026</div>
-                        <div class="days-remaining" id="daysRemaining">23 days remaining</div>
-                    </div>
-                    
-                    <!-- Company Totals for Current Month -->
-                    <div class="company-totals">
-                        <div class="company-total-card">
-                            <div class="label">Budget</div>
-                            <div class="value" id="cmBudget">$0</div>
-                        </div>
-                        <div class="company-total-card">
-                            <div class="label">Actual</div>
-                            <div class="value green" id="cmActual">$0</div>
-                        </div>
-                        <div class="company-total-card">
-                            <div class="label">Variance</div>
-                            <div class="value" id="cmVariance">$0</div>
-                        </div>
-                        <div class="company-total-card">
-                            <div class="label">% of Budget</div>
-                            <div class="value" id="cmPercent">0%</div>
-                        </div>
-                        <div class="company-total-card">
-                            <div class="label">Jobs</div>
-                            <div class="value" id="cmJobs">0</div>
-                        </div>
-                        <div class="company-total-card">
-                            <div class="label">Avg Ticket</div>
-                            <div class="value" id="cmAvgTicket">$0</div>
-                        </div>
-                        <div class="company-total-card">
-                            <div class="label">Gross Profit</div>
-                            <div class="value green" id="cmGP">$0</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Residential Section -->
-                    <div class="dept-section-header">🏠 Residential</div>
-                    <div class="dept-grid" id="residentialGrid">
-                        <!-- Populated by JavaScript -->
-                    </div>
-                    
-                    <!-- Commercial Section -->
-                    <div class="dept-section-header">🏢 Commercial</div>
-                    <div class="dept-grid" id="commercialGrid">
-                        <!-- Populated by JavaScript -->
-                    </div>
-                    
-                    <!-- New Construction Section -->
-                    <div class="dept-section-header">🏗️ New Construction</div>
-                    <div class="dept-grid single" id="newConstructionGrid">
-                        <!-- Populated by JavaScript -->
-                    </div>
-                </div>
-                
-                <!-- Pending Revenue Section -->
-                <div class="kpi-section">
-                    <div class="section-title">📋 Pending Revenue (Not Yet Completed)</div>
-                    <div class="kpi-grid">
-                        <div class="kpi-card pending">
-                            <div class="kpi-name">📋 Unscheduled</div>
-                            <div class="kpi-value" id="unscheduledRevenue">$0</div>
-                            <div class="kpi-target" id="unscheduledCount">0 jobs</div>
-                        </div>
-                        <div class="kpi-card pending">
-                            <div class="kpi-name">📅 Scheduled</div>
-                            <div class="kpi-value" id="scheduledRevenue">$0</div>
-                            <div class="kpi-target" id="scheduledCount">0 jobs</div>
-                        </div>
-                        <div class="kpi-card pending">
-                            <div class="kpi-name">🔧 In Progress</div>
-                            <div class="kpi-value" id="inProgressRevenue">$0</div>
-                            <div class="kpi-target" id="inProgressCount">0 jobs</div>
-                        </div>
-                        <div class="kpi-card good">
-                            <div class="kpi-name">💰 Total Pending</div>
-                            <div class="kpi-value" id="totalPendingRevenue">$0</div>
-                            <div class="kpi-target">All pending jobs</div>
-                        </div>
-                        <div class="kpi-card good">
-                            <div class="kpi-name">📄 A/R Outstanding</div>
-                            <div class="kpi-value" id="arTotal">$0</div>
-                            <div class="kpi-target" id="arCount">0 invoices</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- KPIs Tab - ORIGINAL -->
-            <div id="kpis" class="tab-content">
+            <!-- KPIs Tab -->
+            <div id="kpis" class="tab-content active">
                 <div class="kpi-section">
                     <div class="section-title">📈 Service Department KPIs</div>
                     <div class="kpi-grid" id="serviceKPIs"></div>
@@ -867,14 +526,14 @@
                 </div>
             </div>
 
-            <!-- Departments Tab - ORIGINAL 12-MONTH VIEW -->
+            <!-- Departments Tab -->
             <div id="departments" class="tab-content">
                 <div id="departmentSections">
                     <!-- Populated by JavaScript -->
                 </div>
             </div>
 
-            <!-- Employees Tab - ORIGINAL -->
+            <!-- Employees Tab -->
             <div id="employees" class="tab-content">
                 <div class="kpi-section">
                     <div class="section-title">👷 Top Performers</div>
@@ -885,86 +544,12 @@
     </div>
 
     <script>
-        // =====================================================
-        // CONFIGURATION
-        // =====================================================
-        const CONFIG = {
-            appsScriptUrl: 'https://script.google.com/macros/s/AKfycbwAW5kGhH_SpXagr_lxMYgbjXIsWVBxX-oCNhhegLD7k82JooMg3BLWcYHI_XRLBjxUvg/exec',
-            refreshInterval: 300000 // 5 minutes
-        };
+        // Configuration
+        const APPS_SCRIPT_URL = 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
+        const REFRESH_INTERVAL = 300000; // 5 minutes
 
         const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         const CURRENT_MONTH = new Date().getMonth() + 1;
-
-        // Department configuration for Current Month view
-        const DEPT_CONFIG = {
-            'res-replacement': { name: 'Replacement', icon: '🔄', gpMargin: 0.45 },
-            'res-service': { name: 'Service', icon: '🔧', gpMargin: 0.55 },
-            'res-maintenance': { name: 'Maintenance', icon: '🛠️', gpMargin: 0.60 },
-            'com-replacement': { name: 'Replacement', icon: '🔄', gpMargin: 0.40 },
-            'com-service': { name: 'Service', icon: '🔧', gpMargin: 0.50 },
-            'com-maintenance': { name: 'Maintenance', icon: '🛠️', gpMargin: 0.55 },
-            'new-construction': { name: 'New Construction', icon: '🏗️', gpMargin: 0.35 }
-        };
-
-        // Dashboard data storage
-        let dashboardData = {
-            company: {},
-            kpis: {},
-            departments: {},
-            employees: [],
-            jobCount: 0,
-            currentMonthDepts: {}
-        };
-
-        // =====================================================
-        // UTILITY FUNCTIONS
-        // =====================================================
-        function formatCurrency(amount) {
-            return new Intl.NumberFormat('en-US', {
-                style: 'currency', currency: 'USD',
-                minimumFractionDigits: 0, maximumFractionDigits: 0
-            }).format(amount || 0);
-        }
-
-        function formatPercent(value) {
-            return parseFloat(value || 0).toFixed(1) + '%';
-        }
-
-        function getCurrentMonthName() {
-            return new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-        }
-
-        function getDaysRemaining() {
-            const now = new Date();
-            const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-            return lastDay.getDate() - now.getDate();
-        }
-
-        function getDayOfMonth() {
-            return new Date().getDate();
-        }
-
-        function getDaysInMonth() {
-            const now = new Date();
-            return new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-        }
-
-        function getExpectedPercent() {
-            return (getDayOfMonth() / getDaysInMonth()) * 100;
-        }
-
-        function getStatus(actualPercent) {
-            const expected = getExpectedPercent();
-            if (actualPercent >= expected) return 'on-track';
-            return 'behind';
-        }
-
-        function getStatusLabel(status) {
-            if (status === 'on-track') return '✓ On Track';
-            if (status === 'ahead') return '🚀 Ahead';
-            return '⚠ Behind';
-        }
 
         // Tab Navigation
         function showTab(tabId) {
@@ -974,58 +559,33 @@
             event.target.classList.add('active');
         }
 
-        // =====================================================
-        // LOAD DATA FROM GOOGLE SHEETS
-        // =====================================================
+        // Format currency
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+
+        // Format percentage
+        function formatPercent(value) {
+            return parseFloat(value).toFixed(1) + '%';
+        }
+
+        // Load Dashboard Data
         async function loadDashboard() {
             try {
-                const response = await fetch(CONFIG.appsScriptUrl + '?action=getData');
-                const result = await response.json();
+                const response = await fetch(APPS_SCRIPT_URL);
+                const data = await response.json();
                 
-                if (result.success) {
-                    // Store raw data
-                    if (result.company) dashboardData.company = result.company;
-                    if (result.kpis) {
-                        // Parse KPI values
-                        Object.keys(result.kpis).forEach(key => {
-                            dashboardData.kpis[key] = parseFloat(result.kpis[key].value) || 0;
-                        });
-                        
-                        // Also store structured kpis if provided
-                        if (result.kpis.service) dashboardData.kpis.service = result.kpis.service;
-                        if (result.kpis.replacement) dashboardData.kpis.replacement = result.kpis.replacement;
-                        if (result.kpis.maintenance) dashboardData.kpis.maintenance = result.kpis.maintenance;
-                        if (result.kpis.overall) dashboardData.kpis.overall = result.kpis.overall;
-                    }
-                    if (result.departments) dashboardData.departments = result.departments;
-                    if (result.employees) dashboardData.employees = result.employees;
-                    if (result.jobCount) dashboardData.jobCount = result.jobCount;
-                    
-                    // Parse department data for current month from KPIs
-                    if (result.kpis) {
-                        Object.keys(result.kpis).forEach(key => {
-                            if (key.startsWith('dept_')) {
-                                const parts = key.replace('dept_', '').split('_');
-                                const metric = parts.pop();
-                                const deptKey = parts.join('_');
-                                
-                                if (!dashboardData.currentMonthDepts[deptKey]) {
-                                    dashboardData.currentMonthDepts[deptKey] = {};
-                                }
-                                dashboardData.currentMonthDepts[deptKey][metric] = parseFloat(result.kpis[key].value) || 0;
-                            }
-                            if (key.startsWith('budget_')) {
-                                const deptKey = key.replace('budget_', '');
-                                if (!dashboardData.currentMonthDepts[deptKey]) {
-                                    dashboardData.currentMonthDepts[deptKey] = {};
-                                }
-                                dashboardData.currentMonthDepts[deptKey].budget = parseFloat(result.kpis[key].value) || 0;
-                            }
-                        });
-                    }
+                if (data.error) {
+                    console.error('Dashboard error:', data.error);
+                    return;
                 }
 
-                renderDashboard();
+                renderDashboard(data);
                 
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('dashboardContent').style.display = 'block';
@@ -1040,447 +600,192 @@
             }
         }
 
-        // =====================================================
-        // RENDER FUNCTIONS
-        // =====================================================
-        function renderDashboard() {
-            renderCompanyOverview();
-            renderCurrentMonthTab();
-            renderPendingRevenue();
-            renderKPIs();
-            renderDepartments();
-            renderEmployees();
+        // Render Dashboard
+        function renderDashboard(data) {
+            renderCompanyOverview(data);
+            renderKPIs(data.kpis);
+            renderDepartments(data.departments);
+            renderEmployees(data.employees);
         }
 
-        // Company Overview Cards (Top - Always Visible) - ORIGINAL
-        function renderCompanyOverview() {
+        // Render Company Overview
+        function renderCompanyOverview(data) {
             const container = document.getElementById('companyOverview');
-            const company = dashboardData.company;
-            const kpis = dashboardData.kpis;
-            
-            // Use company data if available, otherwise calculate from current month
-            const totalBudget = company.totalBudget || kpis.budgetMTD || 145606;
-            const ytdActual = company.ytdActual || kpis.revenueMTD || 0;
-            const ytdBudget = company.ytdBudget || totalBudget;
-            const variance = company.variance || (ytdActual - ytdBudget);
-            const percentComplete = company.percentComplete || (ytdBudget > 0 ? (ytdActual / ytdBudget * 100).toFixed(1) : 0);
-            const jobCount = dashboardData.jobCount || 0;
+            const company = data.company;
             
             container.innerHTML = `
                 <div class="overview-card highlight">
                     <div class="overview-label">Annual Budget</div>
-                    <div class="overview-value">${formatCurrency(totalBudget)}</div>
+                    <div class="overview-value">${formatCurrency(company.totalBudget)}</div>
                     <div class="overview-subvalue">FY 2026 Target</div>
                 </div>
                 <div class="overview-card">
                     <div class="overview-label">YTD Actual</div>
-                    <div class="overview-value">${formatCurrency(ytdActual)}</div>
-                    <div class="overview-subvalue">${percentComplete}% of Annual</div>
+                    <div class="overview-value">${formatCurrency(company.ytdActual)}</div>
+                    <div class="overview-subvalue">${company.percentComplete}% of Annual</div>
                 </div>
                 <div class="overview-card">
                     <div class="overview-label">YTD Budget</div>
-                    <div class="overview-value">${formatCurrency(ytdBudget)}</div>
+                    <div class="overview-value">${formatCurrency(company.ytdBudget)}</div>
                     <div class="overview-subvalue">Target to Date</div>
                 </div>
                 <div class="overview-card">
                     <div class="overview-label">Variance</div>
-                    <div class="overview-value" style="color: ${variance >= 0 ? '#00ff88' : '#ff6b6b'}">
-                        ${variance >= 0 ? '+' : ''}${formatCurrency(variance)}
+                    <div class="overview-value" style="color: ${company.variance >= 0 ? '#00ff88' : '#ff6b6b'}">
+                        ${company.variance >= 0 ? '+' : ''}${formatCurrency(company.variance)}
                     </div>
-                    <div class="overview-subvalue">${variance >= 0 ? 'Over Budget ✓' : 'Under Budget'}</div>
+                    <div class="overview-subvalue">${company.variance >= 0 ? 'Over Budget ✓' : 'Under Budget'}</div>
                 </div>
                 <div class="overview-card">
                     <div class="overview-label">Total Jobs</div>
-                    <div class="overview-value">${jobCount}</div>
+                    <div class="overview-value">${data.jobCount}</div>
                     <div class="overview-subvalue">Completed YTD</div>
                 </div>
             `;
         }
 
-        // NEW: Current Month Tab
-        function renderCurrentMonthTab() {
-            // Update header
-            document.getElementById('currentMonthTitle').textContent = '📅 ' + getCurrentMonthName();
-            document.getElementById('daysRemaining').textContent = getDaysRemaining() + ' days remaining';
-            
-            // Calculate totals from current month departments
-            const depts = dashboardData.currentMonthDepts;
-            let totalBudget = 0;
-            let totalActual = 0;
-            let totalJobs = 0;
-            let totalGP = 0;
-            
-            Object.keys(depts).forEach(key => {
-                const dept = depts[key];
-                const config = DEPT_CONFIG[key] || { gpMargin: 0.45 };
-                
-                totalBudget += dept.budget || 0;
-                totalActual += dept.actual || 0;
-                totalJobs += dept.jobs || 0;
-                totalGP += (dept.actual || 0) * config.gpMargin;
-            });
-            
-            // Fallback to kpis if no department data
-            if (totalBudget === 0) totalBudget = dashboardData.kpis.budgetMTD || 145606;
-            if (totalActual === 0) totalActual = dashboardData.kpis.revenueMTD || 0;
-            
-            const variance = totalActual - totalBudget;
-            const percent = totalBudget > 0 ? (totalActual / totalBudget * 100) : 0;
-            const avgTicket = totalJobs > 0 ? totalActual / totalJobs : 0;
-            
-            // Update company totals
-            document.getElementById('cmBudget').textContent = formatCurrency(totalBudget);
-            document.getElementById('cmActual').textContent = formatCurrency(totalActual);
-            
-            const varianceEl = document.getElementById('cmVariance');
-            varianceEl.textContent = (variance >= 0 ? '+' : '') + formatCurrency(variance);
-            varianceEl.className = 'value ' + (variance >= 0 ? 'green' : 'red');
-            
-            const percentEl = document.getElementById('cmPercent');
-            percentEl.textContent = percent.toFixed(1) + '%';
-            percentEl.className = 'value ' + (percent >= getExpectedPercent() ? 'green' : 'yellow');
-            
-            document.getElementById('cmJobs').textContent = totalJobs;
-            document.getElementById('cmAvgTicket').textContent = formatCurrency(avgTicket);
-            document.getElementById('cmGP').textContent = formatCurrency(totalGP);
-            
-            // Render department cards
-            const residentialDepts = ['res-replacement', 'res-service', 'res-maintenance'];
-            const commercialDepts = ['com-replacement', 'com-service', 'com-maintenance'];
-            const constructionDepts = ['new-construction'];
-            
-            document.getElementById('residentialGrid').innerHTML = renderDeptCards(residentialDepts);
-            document.getElementById('commercialGrid').innerHTML = renderDeptCards(commercialDepts);
-            document.getElementById('newConstructionGrid').innerHTML = renderDeptCards(constructionDepts);
-        }
+        // Render KPIs
+        function renderKPIs(kpis) {
+            if (!kpis || !kpis.service) return;
 
-        function renderDeptCards(deptKeys) {
-            return deptKeys.map(key => {
-                const dept = dashboardData.currentMonthDepts[key] || {};
-                const config = DEPT_CONFIG[key] || { name: key, icon: '📊', gpMargin: 0.45 };
-                
-                const budget = dept.budget || 0;
-                const actual = dept.actual || 0;
-                const jobs = dept.jobs || 0;
-                const avgTicket = jobs > 0 ? actual / jobs : 0;
-                const percent = budget > 0 ? (actual / budget * 100) : 0;
-                const status = getStatus(percent);
-                
-                // Progress bar color
-                let progressColor = 'green';
-                if (percent < getExpectedPercent() * 0.8) progressColor = 'red';
-                else if (percent < getExpectedPercent()) progressColor = 'yellow';
-                
-                return `
-                    <div class="dept-card">
-                        <div class="dept-card-header">
-                            <div class="dept-name">${config.icon} ${config.name}</div>
-                            <div class="dept-status ${status}">${getStatusLabel(status)}</div>
-                        </div>
-                        
-                        <div class="progress-container">
-                            <div class="cm-progress-bar">
-                                <div class="progress-fill ${progressColor}" style="width: ${Math.min(percent, 100)}%"></div>
-                            </div>
-                            <div class="progress-labels">
-                                <span>Budget: ${formatCurrency(budget)}</span>
-                                <span>${percent.toFixed(1)}%</span>
-                            </div>
-                        </div>
-                        
-                        <div class="dept-stats">
-                            <div class="dept-stat">
-                                <div class="label">Actual</div>
-                                <div class="value" style="color: #00ff88;">${formatCurrency(actual)}</div>
-                            </div>
-                            <div class="dept-stat">
-                                <div class="label">Jobs</div>
-                                <div class="value">${jobs}</div>
-                            </div>
-                            <div class="dept-stat">
-                                <div class="label">Avg Ticket</div>
-                                <div class="value">${formatCurrency(avgTicket)}</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
+            // Service KPIs
+            document.getElementById('serviceKPIs').innerHTML = `
+                <div class="kpi-card ${kpis.service.dfoStatus}">
+                    <div class="kpi-name">DFO Rate</div>
+                    <div class="kpi-value">${kpis.service.dfoRate}%</div>
+                    <div class="kpi-target">Target: < ${kpis.service.dfoTarget}%</div>
+                    <div class="kpi-status ${kpis.service.dfoStatus}">${kpis.service.dfoStatus === 'good' ? '✓ On Track' : '⚠ Needs Attention'}</div>
+                </div>
+                <div class="kpi-card ${kpis.service.avgTicketStatus}">
+                    <div class="kpi-name">Avg Service Ticket</div>
+                    <div class="kpi-value">${formatCurrency(kpis.service.avgTicket)}</div>
+                    <div class="kpi-target">Target: ${formatCurrency(kpis.service.avgTicketTarget)}+</div>
+                    <div class="kpi-status ${kpis.service.avgTicketStatus}">${kpis.service.avgTicketStatus === 'good' ? '✓ On Track' : '⚠ Below Target'}</div>
+                </div>
+                <div class="kpi-card ${kpis.service.callbackStatus}">
+                    <div class="kpi-name">Callback Rate</div>
+                    <div class="kpi-value">${kpis.service.callbackRate}%</div>
+                    <div class="kpi-target">Target: < ${kpis.service.callbackTarget}%</div>
+                    <div class="kpi-status ${kpis.service.callbackStatus}">${kpis.service.callbackStatus === 'good' ? '✓ On Track' : '⚠ High Callbacks'}</div>
+                </div>
+                <div class="kpi-card good">
+                    <div class="kpi-name">Total Service Calls</div>
+                    <div class="kpi-value">${kpis.service.totalServiceCalls}</div>
+                    <div class="kpi-target">DFO: ${kpis.service.dfoCount} calls</div>
+                </div>
+            `;
 
-        // Pending Revenue Section
-        function renderPendingRevenue() {
-            const kpis = dashboardData.kpis;
-            
-            document.getElementById('unscheduledRevenue').textContent = formatCurrency(kpis.unscheduledRevenue || 0);
-            document.getElementById('unscheduledCount').textContent = (kpis.unscheduledCount || 0) + ' jobs';
-            document.getElementById('scheduledRevenue').textContent = formatCurrency(kpis.scheduledRevenue || 0);
-            document.getElementById('scheduledCount').textContent = (kpis.scheduledCount || 0) + ' jobs';
-            document.getElementById('inProgressRevenue').textContent = formatCurrency(kpis.inProgressRevenue || 0);
-            document.getElementById('inProgressCount').textContent = (kpis.inProgressCount || 0) + ' jobs';
-            document.getElementById('totalPendingRevenue').textContent = formatCurrency(kpis.totalPendingRevenue || 0);
-            document.getElementById('arTotal').textContent = formatCurrency(kpis.arTotal || 0);
-            document.getElementById('arCount').textContent = (kpis.arCount || 0) + ' invoices';
-        }
-
-        // ORIGINAL: KPIs Tab with DFO, Callback, etc.
-        function renderKPIs() {
-            const kpis = dashboardData.kpis;
-            
-            // Check if we have structured KPI data
-            if (kpis.service && kpis.service.dfoRate !== undefined) {
-                // Service KPIs - ORIGINAL FORMAT
-                document.getElementById('serviceKPIs').innerHTML = `
-                    <div class="kpi-card ${kpis.service.dfoStatus || 'good'}">
-                        <div class="kpi-name">DFO Rate</div>
-                        <div class="kpi-value">${kpis.service.dfoRate}%</div>
-                        <div class="kpi-target">Target: < ${kpis.service.dfoTarget || 5}%</div>
-                        <div class="kpi-status ${kpis.service.dfoStatus || 'good'}">${kpis.service.dfoStatus === 'good' ? '✓ On Track' : '⚠ Needs Attention'}</div>
-                    </div>
-                    <div class="kpi-card ${kpis.service.avgTicketStatus || 'good'}">
-                        <div class="kpi-name">Avg Service Ticket</div>
-                        <div class="kpi-value">${formatCurrency(kpis.service.avgTicket)}</div>
-                        <div class="kpi-target">Target: ${formatCurrency(kpis.service.avgTicketTarget || 350)}+</div>
-                        <div class="kpi-status ${kpis.service.avgTicketStatus || 'good'}">${kpis.service.avgTicketStatus === 'good' ? '✓ On Track' : '⚠ Below Target'}</div>
-                    </div>
-                    <div class="kpi-card ${kpis.service.callbackStatus || 'good'}">
-                        <div class="kpi-name">Callback Rate</div>
-                        <div class="kpi-value">${kpis.service.callbackRate || 0}%</div>
-                        <div class="kpi-target">Target: < ${kpis.service.callbackTarget || 3}%</div>
-                        <div class="kpi-status ${kpis.service.callbackStatus || 'good'}">${kpis.service.callbackStatus === 'good' ? '✓ On Track' : '⚠ High Callbacks'}</div>
-                    </div>
-                    <div class="kpi-card good">
-                        <div class="kpi-name">Total Service Calls</div>
-                        <div class="kpi-value">${kpis.service.totalServiceCalls || 0}</div>
-                        <div class="kpi-target">DFO: ${kpis.service.dfoCount || 0} calls</div>
-                    </div>
-                `;
-
-                // Replacement KPIs - ORIGINAL FORMAT
-                if (kpis.replacement) {
-                    document.getElementById('replacementKPIs').innerHTML = `
-                        <div class="kpi-card ${kpis.replacement.avgTicketStatus || 'good'}">
-                            <div class="kpi-name">Avg Replacement Ticket</div>
-                            <div class="kpi-value">${formatCurrency(kpis.replacement.avgTicket)}</div>
-                            <div class="kpi-target">Target: ${formatCurrency(kpis.replacement.avgTicketTarget || 8000)}+</div>
-                            <div class="kpi-status ${kpis.replacement.avgTicketStatus || 'good'}">${kpis.replacement.avgTicketStatus === 'good' ? '✓ On Track' : '⚠ Below Target'}</div>
-                        </div>
-                        <div class="kpi-card good">
-                            <div class="kpi-name">Total Replacements</div>
-                            <div class="kpi-value">${kpis.replacement.totalJobs || 0}</div>
-                            <div class="kpi-target">Revenue: ${formatCurrency(kpis.replacement.totalRevenue)}</div>
-                        </div>
-                        <div class="kpi-card good">
-                            <div class="kpi-name">Overall Avg Ticket</div>
-                            <div class="kpi-value">${formatCurrency(kpis.overall?.avgTicketAll || 0)}</div>
-                            <div class="kpi-target">All Departments</div>
-                        </div>
-                        <div class="kpi-card good">
-                            <div class="kpi-name">Total Revenue</div>
-                            <div class="kpi-value">${formatCurrency(kpis.overall?.totalRevenue || 0)}</div>
-                            <div class="kpi-target">${kpis.overall?.totalJobs || 0} Total Jobs</div>
-                        </div>
-                    `;
-                }
-
-                // Maintenance KPIs - ORIGINAL FORMAT
-                if (kpis.maintenance) {
-                    document.getElementById('maintenanceKPIs').innerHTML = `
-                        <div class="kpi-card ${kpis.maintenance.avgTicketStatus || 'good'}">
-                            <div class="kpi-name">Avg Maintenance Ticket</div>
-                            <div class="kpi-value">${formatCurrency(kpis.maintenance.avgTicket)}</div>
-                            <div class="kpi-target">Target: ${formatCurrency(kpis.maintenance.avgTicketTarget || 200)}+</div>
-                            <div class="kpi-status ${kpis.maintenance.avgTicketStatus || 'good'}">${kpis.maintenance.avgTicketStatus === 'good' ? '✓ On Track' : '⚠ Below Target'}</div>
-                        </div>
-                        <div class="kpi-card good">
-                            <div class="kpi-name">Total Maintenance Jobs</div>
-                            <div class="kpi-value">${kpis.maintenance.totalJobs || 0}</div>
-                            <div class="kpi-target">Club Members</div>
-                        </div>
-                    `;
-                }
-            } else {
-                // Fallback - use flat KPI values
-                const depts = dashboardData.currentMonthDepts;
-                
-                document.getElementById('serviceKPIs').innerHTML = `
-                    <div class="kpi-card good">
-                        <div class="kpi-name">Revenue MTD</div>
-                        <div class="kpi-value">${formatCurrency(kpis.revenueMTD || 0)}</div>
-                        <div class="kpi-target">Target: ${formatCurrency(kpis.budgetMTD || 145606)}</div>
-                    </div>
-                    <div class="kpi-card good">
-                        <div class="kpi-name">Collected MTD</div>
-                        <div class="kpi-value">${formatCurrency(kpis.paidMTD || 0)}</div>
-                        <div class="kpi-target">Payments received</div>
-                    </div>
-                    <div class="kpi-card pending">
-                        <div class="kpi-name">A/R Outstanding</div>
-                        <div class="kpi-value">${formatCurrency(kpis.arTotal || 0)}</div>
-                        <div class="kpi-target">${kpis.arCount || 0} invoices</div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-name">Avg Service Ticket</div>
-                        <div class="kpi-value">${formatCurrency(depts['res-service']?.jobs > 0 ? depts['res-service'].actual / depts['res-service'].jobs : 0)}</div>
-                        <div class="kpi-target">Target: $350+</div>
-                    </div>
-                `;
-
+            // Replacement KPIs
+            if (kpis.replacement) {
                 document.getElementById('replacementKPIs').innerHTML = `
-                    <div class="kpi-card good">
-                        <div class="kpi-name">Res Replacement</div>
-                        <div class="kpi-value">${formatCurrency(depts['res-replacement']?.actual || 0)}</div>
-                        <div class="kpi-target">${depts['res-replacement']?.jobs || 0} jobs</div>
+                    <div class="kpi-card ${kpis.replacement.avgTicketStatus}">
+                        <div class="kpi-name">Avg Replacement Ticket</div>
+                        <div class="kpi-value">${formatCurrency(kpis.replacement.avgTicket)}</div>
+                        <div class="kpi-target">Target: ${formatCurrency(kpis.replacement.avgTicketTarget)}+</div>
+                        <div class="kpi-status ${kpis.replacement.avgTicketStatus}">${kpis.replacement.avgTicketStatus === 'good' ? '✓ On Track' : '⚠ Below Target'}</div>
                     </div>
                     <div class="kpi-card good">
-                        <div class="kpi-name">Com Replacement</div>
-                        <div class="kpi-value">${formatCurrency(depts['com-replacement']?.actual || 0)}</div>
-                        <div class="kpi-target">${depts['com-replacement']?.jobs || 0} jobs</div>
+                        <div class="kpi-name">Total Replacements</div>
+                        <div class="kpi-value">${kpis.replacement.totalJobs}</div>
+                        <div class="kpi-target">Revenue: ${formatCurrency(kpis.replacement.totalRevenue)}</div>
+                    </div>
+                    <div class="kpi-card good">
+                        <div class="kpi-name">Overall Avg Ticket</div>
+                        <div class="kpi-value">${formatCurrency(kpis.overall.avgTicketAll)}</div>
+                        <div class="kpi-target">All Departments</div>
+                    </div>
+                    <div class="kpi-card good">
+                        <div class="kpi-name">Total Revenue</div>
+                        <div class="kpi-value">${formatCurrency(kpis.overall.totalRevenue)}</div>
+                        <div class="kpi-target">${kpis.overall.totalJobs} Total Jobs</div>
                     </div>
                 `;
+            }
 
+            // Maintenance KPIs
+            if (kpis.maintenance) {
                 document.getElementById('maintenanceKPIs').innerHTML = `
-                    <div class="kpi-card good">
-                        <div class="kpi-name">Res Maintenance</div>
-                        <div class="kpi-value">${formatCurrency(depts['res-maintenance']?.actual || 0)}</div>
-                        <div class="kpi-target">${depts['res-maintenance']?.jobs || 0} jobs</div>
+                    <div class="kpi-card ${kpis.maintenance.avgTicketStatus}">
+                        <div class="kpi-name">Avg Maintenance Ticket</div>
+                        <div class="kpi-value">${formatCurrency(kpis.maintenance.avgTicket)}</div>
+                        <div class="kpi-target">Target: ${formatCurrency(kpis.maintenance.avgTicketTarget)}+</div>
+                        <div class="kpi-status ${kpis.maintenance.avgTicketStatus}">${kpis.maintenance.avgTicketStatus === 'good' ? '✓ On Track' : '⚠ Below Target'}</div>
                     </div>
                     <div class="kpi-card good">
-                        <div class="kpi-name">Com Maintenance</div>
-                        <div class="kpi-value">${formatCurrency(depts['com-maintenance']?.actual || 0)}</div>
-                        <div class="kpi-target">${depts['com-maintenance']?.jobs || 0} jobs</div>
+                        <div class="kpi-name">Total Maintenance Jobs</div>
+                        <div class="kpi-value">${kpis.maintenance.totalJobs}</div>
+                        <div class="kpi-target">Club Members</div>
                     </div>
                 `;
             }
         }
 
-        // ORIGINAL: Departments Tab (12-month view)
-        function renderDepartments() {
-            const departments = dashboardData.departments;
-            
-            // If we have full department data with months, render 12-month view
-            if (departments && Object.keys(departments).length > 0 && departments['Residential Replacement']?.months) {
-                const container = document.getElementById('departmentSections');
-                let html = '';
+        // Render Departments
+        function renderDepartments(departments) {
+            if (!departments) return;
 
-                const deptOrder = [
-                    'Residential Replacement',
-                    'Residential Service', 
-                    'Residential Maintenance',
-                    'Commercial Replacement',
-                    'Commercial Service',
-                    'Commercial Maintenance',
-                    'New Construction'
-                ];
+            const container = document.getElementById('departmentSections');
+            let html = '';
 
-                deptOrder.forEach(deptName => {
-                    const dept = departments[deptName];
-                    if (!dept) return;
+            const deptOrder = [
+                'Residential Replacement',
+                'Residential Service', 
+                'Residential Maintenance',
+                'Commercial Replacement',
+                'Commercial Service',
+                'Commercial Maintenance',
+                'New Construction'
+            ];
 
-                    const varianceClass = dept.ytdVariance >= 0 ? 'positive' : 'negative';
+            deptOrder.forEach(deptName => {
+                const dept = departments[deptName];
+                if (!dept) return;
 
-                    html += `
-                        <div class="department-section">
-                            <div class="department-header">
-                                <div class="department-name">${deptName}</div>
-                                <div class="department-ytd">
-                                    <span>
-                                        <span class="label">Annual Budget</span>
-                                        <span class="value">${formatCurrency(dept.annualBudget)}</span>
-                                    </span>
-                                    <span>
-                                        <span class="label">YTD Actual</span>
-                                        <span class="value">${formatCurrency(dept.ytdActual)}</span>
-                                    </span>
-                                    <span>
-                                        <span class="label">YTD Budget</span>
-                                        <span class="value">${formatCurrency(dept.ytdBudget)}</span>
-                                    </span>
-                                    <span>
-                                        <span class="label">Variance</span>
-                                        <span class="value ${varianceClass}">${dept.ytdVariance >= 0 ? '+' : ''}${formatCurrency(dept.ytdVariance)}</span>
-                                    </span>
-                                    <span>
-                                        <span class="label">% Complete</span>
-                                        <span class="value">${dept.annualPercentComplete}%</span>
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="department-months">
-                                ${renderMonthCards(dept.months)}
+                const varianceClass = dept.ytdVariance >= 0 ? 'positive' : 'negative';
+
+                html += `
+                    <div class="department-section">
+                        <div class="department-header">
+                            <div class="department-name">${deptName}</div>
+                            <div class="department-ytd">
+                                <span>
+                                    <span class="label">Annual Budget</span>
+                                    <span class="value">${formatCurrency(dept.annualBudget)}</span>
+                                </span>
+                                <span>
+                                    <span class="label">YTD Actual</span>
+                                    <span class="value">${formatCurrency(dept.ytdActual)}</span>
+                                </span>
+                                <span>
+                                    <span class="label">YTD Budget</span>
+                                    <span class="value">${formatCurrency(dept.ytdBudget)}</span>
+                                </span>
+                                <span>
+                                    <span class="label">Variance</span>
+                                    <span class="value ${varianceClass}">${dept.ytdVariance >= 0 ? '+' : ''}${formatCurrency(dept.ytdVariance)}</span>
+                                </span>
+                                <span>
+                                    <span class="label">% Complete</span>
+                                    <span class="value">${dept.annualPercentComplete}%</span>
+                                </span>
                             </div>
                         </div>
-                    `;
-                });
-
-                container.innerHTML = html;
-            } else {
-                // Fallback - show current month data in department format
-                const container = document.getElementById('departmentSections');
-                const depts = dashboardData.currentMonthDepts;
-                
-                const deptOrder = [
-                    { key: 'res-replacement', name: 'Residential Replacement' },
-                    { key: 'res-service', name: 'Residential Service' },
-                    { key: 'res-maintenance', name: 'Residential Maintenance' },
-                    { key: 'com-replacement', name: 'Commercial Replacement' },
-                    { key: 'com-service', name: 'Commercial Service' },
-                    { key: 'com-maintenance', name: 'Commercial Maintenance' },
-                    { key: 'new-construction', name: 'New Construction' }
-                ];
-
-                let html = '';
-                
-                deptOrder.forEach(({key, name}) => {
-                    const dept = depts[key] || {};
-                    const budget = dept.budget || 0;
-                    const actual = dept.actual || 0;
-                    const variance = actual - budget;
-                    const percentComplete = budget > 0 ? (actual / budget * 100) : 0;
-                    const varianceClass = variance >= 0 ? 'positive' : 'negative';
-
-                    html += `
-                        <div class="department-section">
-                            <div class="department-header">
-                                <div class="department-name">${name}</div>
-                                <div class="department-ytd">
-                                    <span>
-                                        <span class="label">Monthly Budget</span>
-                                        <span class="value">${formatCurrency(budget)}</span>
-                                    </span>
-                                    <span>
-                                        <span class="label">MTD Actual</span>
-                                        <span class="value">${formatCurrency(actual)}</span>
-                                    </span>
-                                    <span>
-                                        <span class="label">Variance</span>
-                                        <span class="value ${varianceClass}">${variance >= 0 ? '+' : ''}${formatCurrency(variance)}</span>
-                                    </span>
-                                    <span>
-                                        <span class="label">% Complete</span>
-                                        <span class="value">${percentComplete.toFixed(1)}%</span>
-                                    </span>
-                                    <span>
-                                        <span class="label">Jobs</span>
-                                        <span class="value">${dept.jobs || 0}</span>
-                                    </span>
-                                </div>
-                            </div>
+                        <div class="department-months">
+                            ${renderMonthCards(dept.months)}
                         </div>
-                    `;
-                });
+                    </div>
+                `;
+            });
 
-                container.innerHTML = html || '<p style="opacity: 0.7; padding: 20px;">Loading department data...</p>';
-            }
+            container.innerHTML = html;
         }
 
-        // ORIGINAL: Render Month Cards for 12-month view
+        // Render Month Cards
         function renderMonthCards(months) {
-            if (!months) return '';
-            
             let html = '';
 
             for (let m = 1; m <= 12; m++) {
-                const month = months[m] || { budget: 0, actual: 0, variance: 0, percentComplete: 0 };
+                const month = months[m];
                 const isFuture = m > CURRENT_MONTH;
                 const isOver = month.actual >= month.budget;
                 const progressPercent = Math.min(100, parseFloat(month.percentComplete) || 0);
@@ -1504,13 +809,11 @@
             return html;
         }
 
-        // ORIGINAL: Employees Tab
-        function renderEmployees() {
-            const employees = dashboardData.employees;
-            
+        // Render Employees
+        function renderEmployees(employees) {
             if (!employees || employees.length === 0) {
                 document.getElementById('employeeGrid').innerHTML = 
-                    '<p style="opacity: 0.7;">Employee performance data coming soon - will integrate with HCP technician data.</p>';
+                    '<p style="opacity: 0.7;">No employee data available yet.</p>';
                 return;
             }
 
@@ -1546,12 +849,9 @@
             document.getElementById('employeeGrid').innerHTML = html;
         }
 
-        // =====================================================
-        // INITIALIZE
-        // =====================================================
+        // Initialize
         loadDashboard();
-        setInterval(loadDashboard, CONFIG.refreshInterval);
+        setInterval(loadDashboard, REFRESH_INTERVAL);
     </script>
 </body>
 </html>
-
